@@ -1,0 +1,158 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    font-family: Inter, system-ui, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+    color-scheme: light dark;
+    
+    /* Light theme variables */
+    --bg-primary: #f8fafc;
+    --bg-secondary: #f1f5f9;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --text-muted: #94a3b8;
+    
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  .dark {
+    /* Dark theme variables */
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --text-muted: #64748b;
+  }
+
+  * {
+    @apply border-slate-200 dark:border-slate-700;
+  }
+
+  body {
+    @apply bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-50;
+    @apply min-h-screen font-sans antialiased;
+    margin: 0;
+    min-width: 320px;
+    
+    /* Glassmorphism background gradient */
+    background: linear-gradient(135deg, 
+      rgba(139, 69, 255, 0.1) 0%, 
+      rgba(255, 107, 107, 0.05) 25%,
+      rgba(78, 205, 196, 0.05) 50%,
+      rgba(255, 230, 109, 0.05) 75%,
+      rgba(139, 69, 255, 0.1) 100%);
+    background-attachment: fixed;
+  }
+
+  #root {
+    @apply min-h-screen w-full;
+  }
+}
+
+@layer components {
+  /* Glassmorphism base class */
+  .glass {
+    @apply backdrop-blur-md bg-white/10 dark:bg-black/10;
+    @apply border border-white/20 dark:border-white/10;
+    @apply shadow-glass;
+  }
+
+  .glass-panel {
+    @apply glass rounded-xl p-6;
+  }
+
+  .glass-card {
+    @apply glass rounded-lg p-4;
+  }
+
+  /* Button variants */
+  .btn {
+    @apply inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium;
+    @apply transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply btn bg-primary-500 text-white hover:bg-primary-600 focus:ring-primary-500;
+    @apply shadow-lg hover:shadow-xl;
+  }
+
+  .btn-secondary {
+    @apply btn glass text-slate-700 dark:text-slate-200 hover:bg-white/20 dark:hover:bg-black/20;
+    @apply focus:ring-slate-500;
+  }
+
+  .btn-ghost {
+    @apply btn text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800;
+    @apply focus:ring-slate-500;
+  }
+
+  /* Input styles */
+  .input {
+    @apply glass rounded-lg px-3 py-2 text-sm;
+    @apply placeholder:text-slate-400 dark:placeholder:text-slate-500;
+    @apply focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+    @apply transition-all duration-200;
+  }
+
+  /* Modal styles */
+  .modal-overlay {
+    @apply fixed inset-0 bg-black/50 backdrop-blur-sm;
+    @apply flex items-center justify-center p-4;
+    @apply animate-fade-in;
+  }
+
+  .modal-content {
+    @apply glass-panel max-w-md w-full animate-scale-in;
+  }
+
+  /* Card styles */
+  .card {
+    @apply glass-card hover:shadow-lg transition-all duration-200;
+  }
+
+  .card-header {
+    @apply pb-4 border-b border-white/10 dark:border-white/5;
+  }
+
+  .card-body {
+    @apply pt-4;
+  }
+
+  /* Layout components */
+  .sidebar {
+    @apply glass-panel h-full min-h-screen w-64 fixed left-0 top-0 z-10;
+  }
+
+  .main-content {
+    @apply ml-64 min-h-screen p-6;
+  }
+
+  .header {
+    @apply glass-card mb-6 flex items-center justify-between;
+  }
+
+  /* Loading states */
+  .loading-spinner {
+    @apply animate-spin rounded-full h-4 w-4 border-2 border-slate-300 border-t-primary-500;
+  }
+
+  /* Transitions */
+  .slide-up {
+    @apply animate-slide-up;
+  }
+
+  .fade-in {
+    @apply animate-fade-in;
+  }
+}
