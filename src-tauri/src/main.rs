@@ -6,9 +6,32 @@ mod models;
 mod services;
 
 use commands::{collection::*, environment::*, git::*, git_branch_commands::*, http::*, workspace::*};
-use services::{credential_service::CredentialService, environment_service::EnvironmentService, git_service::GitService, http_service::HttpService};
+use services::{credential_service::CredentialService, environment_service::EnvironmentService, git_service::GitService, http_service::HttpService, database_service::DatabaseService};
 use tauri::Manager;
-use std::sync::Mutex;
+use std::sync::{Mutex, Arc};
+
+// Initialize database on application startup
+async fn initialize_database_on_startup(app_handle: tauri::AppHandle) -> Result<(), Box<dyn std::error::Error>> {
+    let app_data_dir = app_handle.path().app_data_dir().unwrap();
+    let db_path = app_data_dir.join("postgirl.db");
+    
+    // Ensure the app data directory exists
+    if let Some(parent) = db_path.parent() {
+        tokio::fs::create_dir_all(parent).await?;
+    }
+    
+    let db_path_str = db_path.to_string_lossy().to_string();
+    
+    // Initialize database service
+    let database_service = DatabaseService::new(&db_path_str).await?;
+    
+    // Get the database service state and update it
+    let db_service_state = app_handle.state::<DatabaseServiceState>();
+    let mut db_state = db_service_state.lock().map_err(|e| format!("Database service lock error: {}", e))?;
+    *db_state = Some(Arc::new(database_service));
+    
+    Ok(())
+}
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
@@ -44,6 +67,7 @@ pub fn run() {
             git_delete_credentials,
             git_credentials_exist,
             workspace_initialize_database,
+            workspace_database_health_check,
             workspace_create,
             workspace_get,
             workspace_get_all,
@@ -102,6 +126,15 @@ pub fn run() {
             quick_create_feature_branch
         ])
         .setup(|app| {
+            // Initialize database on startup
+            let app_handle = app.handle();
+            tauri::async_runtime::spawn(async move {
+                match initialize_database_on_startup(app_handle).await {
+                    Ok(_) => println!("Database initialized successfully"),
+                    Err(e) => eprintln!("Failed to initialize database: {}", e),
+                }
+            });
+
             #[cfg(debug_assertions)] // only include this code on debug builds
             {
                 let window = app.get_webview_window("main").unwrap();

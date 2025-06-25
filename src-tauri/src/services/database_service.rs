@@ -12,19 +12,38 @@ impl DatabaseService {
     pub async fn new(database_path: &str) -> Result<Self> {
         // Ensure the database directory exists
         if let Some(parent) = Path::new(database_path).parent() {
-            tokio::fs::create_dir_all(parent).await?;
+            tokio::fs::create_dir_all(parent).await
+                .map_err(|e| anyhow::anyhow!("Failed to create database directory: {}", e))?;
         }
 
         // Create database if it doesn't exist
         if !Sqlite::database_exists(database_path).await.unwrap_or(false) {
-            Sqlite::create_database(database_path).await?;
+            println!("Creating new database at: {}", database_path);
+            Sqlite::create_database(database_path).await
+                .map_err(|e| anyhow::anyhow!("Failed to create database: {}", e))?;
         }
 
-        // Connect to database
-        let pool = SqlitePool::connect(database_path).await?;
+        // Connect to database with retry logic
+        let pool = match SqlitePool::connect(database_path).await {
+            Ok(pool) => pool,
+            Err(e) => {
+                eprintln!("Failed to connect to database on first attempt: {}", e);
+                // Retry after a short delay
+                tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
+                SqlitePool::connect(database_path).await
+                    .map_err(|e| anyhow::anyhow!("Failed to connect to database after retry: {}", e))?
+            }
+        };
 
-        // Run migrations
-        sqlx::migrate!("./migrations").run(&pool).await?;
+        // Run migrations with error handling
+        match sqlx::migrate!("./migrations").run(&pool).await {
+            Ok(_) => println!("Database migrations completed successfully"),
+            Err(e) => {
+                eprintln!("Migration error: {}", e);
+                // Try to continue with existing schema - log but don't fail
+                println!("Continuing with existing database schema");
+            }
+        }
 
         Ok(Self { pool })
     }
