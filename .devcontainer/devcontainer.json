@@ -1,0 +1,75 @@
+{
+  "name": "Postgirl Development",
+  "image": "mcr.microsoft.com/devcontainers/rust:1-1-bullseye",
+  
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "nodeGypDependencies": true,
+      "version": "lts"
+    },
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "rust-lang.rust-analyzer",
+        "tauri-apps.tauri-vscode",
+        "bradlc.vscode-tailwindcss",
+        "esbenp.prettier-vscode",
+        "ms-vscode.vscode-typescript-next",
+        "formulahendry.auto-rename-tag",
+        "ms-vscode.vscode-json",
+        "usernamehw.errorlens",
+        "github.copilot",
+        "github.copilot-chat"
+      ],
+      "settings": {
+        "rust-analyzer.check.command": "clippy",
+        "rust-analyzer.cargo.features": "all",
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "[rust]": {
+          "editor.defaultFormatter": "rust-lang.rust-analyzer"
+        },
+        "[typescript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[typescriptreact]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "tailwindCSS.includeLanguages": {
+          "typescript": "typescript",
+          "typescriptreact": "typescriptreact"
+        }
+      }
+    }
+  },
+
+  "postCreateCommand": "/workspaces/postgirl/.devcontainer/setup.sh",
+  "postStartCommand": "echo 'Dev container ready! Run npm install && npm run tauri:dev to start development.'",
+
+  "forwardPorts": [3000, 1420],
+  "portsAttributes": {
+    "3000": {
+      "label": "Vite Dev Server",
+      "onAutoForward": "notify"
+    },
+    "1420": {
+      "label": "Tauri Dev Server",
+      "onAutoForward": "notify"
+    }
+  },
+
+  "mounts": [
+    "source=${localWorkspaceFolder}/.cargo,target=/usr/local/cargo,type=bind,consistency=cached"
+  ],
+
+  "remoteUser": "vscode",
+  "containerUser": "vscode",
+
+  "runArgs": [
+    "--security-opt", "seccomp=unconfined"
+  ]
+}

@@ -43,20 +43,27 @@ pub async fn workspace_initialize_database(
 pub async fn workspace_database_health_check(
     db_service: State<'_, DatabaseServiceState>,
 ) -> Result<bool, String> {
-    match db_service.lock() {
-        Ok(db_state) => {
-            match db_state.as_ref() {
-                Some(db) => {
-                    // Try a simple query to verify database is working
-                    match db.get_all_workspaces().await {
-                        Ok(_) => Ok(true),
-                        Err(e) => Err(format!("Database health check failed: {}", e))
-                    }
-                },
-                None => Err("Database not initialized".to_string())
+    let db_clone = {
+        match db_service.lock() {
+            Ok(db_state) => {
+                match db_state.as_ref() {
+                    Some(db) => Some(db.clone()),
+                    None => None
+                }
+            },
+            Err(e) => return Err(format!("Database service lock error: {}", e))
+        }
+    };
+
+    match db_clone {
+        Some(db) => {
+            // Try a simple query to verify database is working
+            match db.get_all_workspaces().await {
+                Ok(_) => Ok(true),
+                Err(e) => Err(format!("Database health check failed: {}", e))
             }
         },
-        Err(e) => Err(format!("Database service lock error: {}", e))
+        None => Err("Database not initialized".to_string())
     }
 }
 

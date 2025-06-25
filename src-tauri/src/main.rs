@@ -127,7 +127,7 @@ pub fn run() {
         ])
         .setup(|app| {
             // Initialize database on startup
-            let app_handle = app.handle();
+            let app_handle = app.handle().clone();
             tauri::async_runtime::spawn(async move {
                 match initialize_database_on_startup(app_handle).await {
                     Ok(_) => println!("Database initialized successfully"),
