@@ -74,7 +74,9 @@ export const EnvironmentEditor: React.FC<EnvironmentEditorProps> = ({
         id: environment?.id || crypto.randomUUID(),
         name: formData.name.trim(),
         variables: formData.variables.reduce((acc, variable) => {
-          acc[variable.key] = variable;
+          if (variable.key.trim()) { // Only include variables with valid keys
+            acc[variable.key] = variable;
+          }
           return acc;
         }, {} as Record<string, any>),
         isActive: environment?.isActive || false,
@@ -82,6 +84,7 @@ export const EnvironmentEditor: React.FC<EnvironmentEditorProps> = ({
         updatedAt: new Date().toISOString()
       };
 
+      console.log('Saving environment with variables:', environmentToSave);
       await onSave(environmentToSave);
       onClose();
     } catch (error) {

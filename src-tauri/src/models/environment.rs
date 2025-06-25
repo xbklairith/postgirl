@@ -71,5 +71,12 @@ impl VariableType {
             VariableType::Secret => "secret",
         }
     }
+
+    pub fn from_str(s: &str) -> Self {
+        match s {
+            "secret" => VariableType::Secret,
+            _ => VariableType::String,
+        }
+    }
 }
 

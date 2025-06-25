@@ -41,17 +41,53 @@ export const EnvironmentSelector: React.FC<EnvironmentSelectorProps> = ({
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (selectorRef.current && !selectorRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
+        // Check if click is inside the dropdown portal
+        const target = event.target as Element;
+        const isClickInsideDropdown = target.closest('[data-dropdown-portal="environment"]');
+        if (!isClickInsideDropdown) {
+          setIsOpen(false);
+        }
       }
     };
 
     const updatePosition = () => {
       if (selectorRef.current && isOpen) {
         const rect = selectorRef.current.getBoundingClientRect();
+        const dropdownHeight = Math.min(384, Math.max(200, environments.length * 60 + 120)); // Estimate height
+        const dropdownWidth = Math.max(rect.width, 320);
+        const viewportHeight = window.innerHeight;
+        const viewportWidth = window.innerWidth;
+        const spaceBelow = viewportHeight - rect.bottom;
+        const spaceAbove = rect.top;
+        
+        // Determine if dropdown should open upward
+        const shouldOpenUpward = spaceBelow < dropdownHeight && spaceAbove > spaceBelow && spaceAbove >= 150;
+        
+        // Calculate vertical position
+        let top = shouldOpenUpward 
+          ? Math.max(8, rect.top + window.scrollY - dropdownHeight - 4)
+          : rect.bottom + window.scrollY + 4;
+        
+        // Ensure dropdown doesn't go off screen vertically
+        if (!shouldOpenUpward && top + dropdownHeight > window.innerHeight + window.scrollY) {
+          top = window.innerHeight + window.scrollY - dropdownHeight - 8;
+        }
+        
+        // Calculate horizontal position
+        let left = rect.left + window.scrollX;
+        
+        // Ensure dropdown doesn't go off screen horizontally
+        if (left + dropdownWidth > viewportWidth) {
+          left = Math.max(8, viewportWidth - dropdownWidth - 8);
+        }
+        if (left < 8) {
+          left = 8;
+        }
+        
         setDropdownPosition({
-          top: rect.bottom + window.scrollY,
-          left: rect.left + window.scrollX,
-          width: rect.width
+          top,
+          left,
+          width: dropdownWidth
         });
       }
     };
@@ -69,7 +105,7 @@ export const EnvironmentSelector: React.FC<EnvironmentSelectorProps> = ({
       window.removeEventListener('resize', updatePosition);
       window.removeEventListener('scroll', updatePosition);
     };
-  }, [isOpen]);
+  }, [isOpen, environments.length]);
 
   const getEnvironmentIcon = (environment: Environment) => {
     const name = environment.name.toLowerCase();
@@ -93,17 +129,18 @@ export const EnvironmentSelector: React.FC<EnvironmentSelectorProps> = ({
 
     return createPortal(
       <div 
+        data-dropdown-portal="environment"
         className={cn(
-          'fixed rounded-lg shadow-xl z-[9999]',
+          'fixed rounded-lg shadow-xl z-[100]',
           'bg-white/95 dark:bg-slate-800/95 backdrop-blur-lg',
           'border border-slate-200/60 dark:border-slate-600/60',
           'ring-1 ring-black ring-opacity-5',
           'max-h-96 overflow-auto'
         )}
         style={{
-          top: dropdownPosition.top + 4,
+          top: dropdownPosition.top,
           left: dropdownPosition.left,
-          width: Math.max(dropdownPosition.width, 320)
+          width: dropdownPosition.width
         }}
       >
         <div className="py-2">

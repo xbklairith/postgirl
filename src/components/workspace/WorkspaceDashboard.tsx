@@ -240,34 +240,49 @@ export const WorkspaceDashboard: React.FC<WorkspaceDashboardProps> = ({
 
       {/* Delete Confirmation Modal */}
       {deleteConfirm && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <Card className="max-w-md w-full">
-            <CardHeader>
-              <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100">
-                Delete Workspace
-              </h3>
-            </CardHeader>
-            <CardBody>
-              <p className="text-slate-600 dark:text-slate-400 mb-6">
-                Are you sure you want to delete this workspace? This action cannot be undone.
-              </p>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-2xl max-w-md w-full border border-slate-200 dark:border-slate-700">
+            <div className="p-6">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="flex-shrink-0 w-10 h-10 mx-auto bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
+                  <TrashIcon className="w-5 h-5 text-red-600 dark:text-red-400" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                    Delete Workspace
+                  </h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                    This action cannot be undone
+                  </p>
+                </div>
+              </div>
+              
+              <div className="mb-6">
+                <p className="text-slate-800 dark:text-slate-200 leading-relaxed">
+                  Are you sure you want to delete this workspace? This action cannot be undone.
+                </p>
+                <p className="text-slate-700 dark:text-slate-300 mt-2 text-sm">
+                  This will permanently remove all workspace data and cannot be recovered.
+                </p>
+              </div>
+              
               <div className="flex justify-end space-x-3">
                 <Button 
                   variant="ghost" 
                   onClick={() => setDeleteConfirm(null)}
+                  className="text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                 >
                   Cancel
                 </Button>
                 <Button 
-                  variant="primary" 
                   onClick={() => handleDeleteWorkspace(deleteConfirm)}
-                  className="bg-red-500 hover:bg-red-600"
+                  className="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800"
                 >
-                  Delete
+                  Delete Workspace
                 </Button>
               </div>
-            </CardBody>
-          </Card>
+            </div>
+          </div>
         </div>
       )}
 

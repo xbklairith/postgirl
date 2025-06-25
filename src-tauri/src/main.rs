@@ -52,7 +52,7 @@ pub fn run() {
         .manage(CredentialServiceState::new(CredentialService::new()))
         .manage(DatabaseServiceState::new(None))
         .manage(std::sync::Arc::new(std::sync::Mutex::new(HttpService::new())))
-        .manage(std::sync::Arc::new(std::sync::Mutex::new(EnvironmentService::new())))
+        .manage(std::sync::Arc::new(std::sync::Mutex::new(None::<EnvironmentService>)))
         .manage(Mutex::new(None::<services::git_branch_service::GitBranchService>))
         .invoke_handler(tauri::generate_handler![
             greet,
@@ -68,6 +68,7 @@ pub fn run() {
             git_credentials_exist,
             workspace_initialize_database,
             workspace_database_health_check,
+            workspace_run_migrations,
             workspace_create,
             workspace_get,
             workspace_get_all,
@@ -80,6 +81,8 @@ pub fn run() {
             workspace_settings_create,
             workspace_settings_get,
             workspace_settings_update,
+            workspace_check_directory_exists,
+            workspace_check_parent_directory,
             execute_http_request,
             test_http_connection,
             get_supported_http_methods,

@@ -1,33 +1,57 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { PlayIcon, ClockIcon, CheckCircleIcon, XCircleIcon, CogIcon } from '@heroicons/react/24/outline';
 import { Button, Input, Card, CardHeader, CardBody, Select } from '../ui';
 import { EnvironmentSelector } from '../environment/EnvironmentSelector';
 import { EnvironmentEditor } from '../environment/EnvironmentEditor';
 import { HttpApiService } from '../../services/http-api';
 import { EnvironmentApiService } from '../../services/environment-api';
+import { CollectionApiService } from '../../services/collection-api';
+import { useWorkspaceStore } from '../../stores/workspace-store';
 import type { HttpRequest, HttpResponse, HttpError, HttpMethod } from '../../types/http';
 import type { Environment } from '../../types/environment';
+import type { Request } from '../../types/collection';
 import { HTTP_METHODS, formatResponseTime, getStatusColor } from '../../types/http';
 
 interface HttpRequestFormProps {
+  initialRequest?: Request;
   onResponse?: (response: HttpResponse) => void;
   onError?: (error: HttpError) => void;
 }
 
 export const HttpRequestForm: React.FC<HttpRequestFormProps> = ({
+  initialRequest,
   onResponse,
   onError
 }) => {
-  const [request, setRequest] = useState<HttpRequest>({
-    id: crypto.randomUUID(),
-    name: 'Test Request',
-    method: 'GET',
-    url: '{{API_URL}}/get',
-    headers: {},
-    followRedirects: true,
-    timeoutMs: 30000,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+  const [request, setRequest] = useState<HttpRequest>(() => {
+    if (initialRequest) {
+      // Convert Collection Request to HttpRequest format
+      return {
+        id: initialRequest.id,
+        name: initialRequest.name,
+        method: initialRequest.method as HttpMethod,
+        url: initialRequest.url,
+        headers: initialRequest.headers ? JSON.parse(initialRequest.headers) : {},
+        body: initialRequest.body ? { type: 'raw' as const, content: initialRequest.body, contentType: 'text/plain' } : { type: 'none' as const },
+        followRedirects: initialRequest.follow_redirects ?? true,
+        timeoutMs: initialRequest.timeout_ms ?? 30000,
+        createdAt: initialRequest.created_at,
+        updatedAt: initialRequest.updated_at
+      };
+    }
+    
+    return {
+      id: crypto.randomUUID(),
+      name: 'Test Request',
+      method: 'GET',
+      url: '{{API_URL}}/get',
+      headers: {},
+      body: { type: 'none' as const },
+      followRedirects: true,
+      timeoutMs: 30000,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
   });
 
   const [response, setResponse] = useState<HttpResponse | null>(null);
@@ -42,7 +66,73 @@ export const HttpRequestForm: React.FC<HttpRequestFormProps> = ({
   const [isEnvironmentEditorOpen, setIsEnvironmentEditorOpen] = useState(false);
   const [editingEnvironment, setEditingEnvironment] = useState<Environment | undefined>();
 
-  const workspaceId = 'http-testing-workspace'; // For HTTP testing context
+  // Get current workspace
+  const { activeWorkspace } = useWorkspaceStore();
+  const workspaceId = activeWorkspace?.id || 'default-workspace';
+
+  // Auto-save functionality with debounce
+  const saveRequestToCollection = useCallback(async (updatedRequest: HttpRequest) => {
+    if (!initialRequest) return; // Only save if we have an initial request (editing existing)
+    
+    try {
+      console.log('Auto-saving request:', {
+        id: updatedRequest.id,
+        collection_id: initialRequest.collection_id,
+        name: updatedRequest.name,
+        method: updatedRequest.method,
+        url: updatedRequest.url,
+        headers: updatedRequest.headers
+      });
+      
+      await CollectionApiService.updateRequest({
+        id: updatedRequest.id,
+        collection_id: initialRequest.collection_id, // Preserve the original collection_id
+        name: updatedRequest.name,
+        method: updatedRequest.method,
+        url: updatedRequest.url,
+        headers: updatedRequest.headers,
+        body: updatedRequest.body?.type === 'raw' ? updatedRequest.body.content : undefined,
+        body_type: initialRequest.body_type, // Preserve original body_type
+        follow_redirects: updatedRequest.followRedirects,
+        timeout_ms: updatedRequest.timeoutMs
+      });
+      console.log('Request auto-saved to collection successfully');
+    } catch (err) {
+      console.error('Failed to auto-save request:', err);
+    }
+  }, [initialRequest]);
+
+  // Update local state when initialRequest changes (switching between requests)
+  useEffect(() => {
+    if (initialRequest) {
+      const newRequest = {
+        id: initialRequest.id,
+        name: initialRequest.name,
+        method: initialRequest.method as HttpMethod,
+        url: initialRequest.url,
+        headers: initialRequest.headers ? JSON.parse(initialRequest.headers) : {},
+        body: initialRequest.body ? { type: 'raw' as const, content: initialRequest.body, contentType: 'text/plain' } : { type: 'none' as const },
+        followRedirects: initialRequest.follow_redirects ?? true,
+        timeoutMs: initialRequest.timeout_ms ?? 30000,
+        createdAt: initialRequest.created_at,
+        updatedAt: initialRequest.updated_at
+      };
+      
+      console.log('Switching to request:', newRequest.name, 'URL:', newRequest.url);
+      setRequest(newRequest);
+    }
+  }, [initialRequest]);
+
+  // Debounced auto-save effect
+  useEffect(() => {
+    if (!initialRequest) return; // Only auto-save for existing requests
+    
+    const timeoutId = setTimeout(() => {
+      saveRequestToCollection(request);
+    }, 1000); // 1 second debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [request, saveRequestToCollection, initialRequest]);
 
   // Load environments on component mount
   useEffect(() => {
@@ -53,10 +143,8 @@ export const HttpRequestForm: React.FC<HttpRequestFormProps> = ({
     try {
       let envs = await EnvironmentApiService.listEnvironments(workspaceId);
       
-      // If no environments exist, create default ones
-      if (envs.length === 0) {
-        envs = await EnvironmentApiService.createDefaultEnvironments(workspaceId);
-      }
+      // Note: No auto-creation of default environments
+      // Let user work without environments or create them manually
       
       setEnvironments(envs);
       
@@ -97,10 +185,19 @@ export const HttpRequestForm: React.FC<HttpRequestFormProps> = ({
       if (editingEnvironment) {
         await EnvironmentApiService.updateEnvironment(environment);
       } else {
-        await EnvironmentApiService.createEnvironment(
+        // First create the environment
+        const newEnv = await EnvironmentApiService.createEnvironment(
           workspaceId,
           environment.name
         );
+        
+        // Then add variables if any exist
+        const variables = Object.values(environment.variables);
+        if (variables.length > 0) {
+          for (const variable of variables) {
+            await EnvironmentApiService.addVariable(newEnv.id, variable);
+          }
+        }
       }
       
       await loadEnvironments();
@@ -271,9 +368,16 @@ export const HttpRequestForm: React.FC<HttpRequestFormProps> = ({
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-              HTTP Request
-            </h3>
+            <div className="flex items-center space-x-3">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                {initialRequest ? request.name : 'HTTP Request'}
+              </h3>
+              {initialRequest && (
+                <span className="px-2 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs rounded-full">
+                  Collection Request
+                </span>
+              )}
+            </div>
             <div className="flex items-center space-x-3">
               <EnvironmentSelector
                 environments={environments}

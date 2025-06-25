@@ -48,17 +48,8 @@ export const EnvironmentManagement: React.FC<EnvironmentManagementProps> = ({
       const envs = await EnvironmentApiService.listEnvironments(workspaceId);
       setEnvironments(envs);
       
-      // If no environments exist, create default ones
-      if (envs.length === 0) {
-        const defaultEnvs = await EnvironmentApiService.createDefaultEnvironments(workspaceId);
-        setEnvironments(defaultEnvs);
-        
-        // Set the first environment as active
-        if (defaultEnvs.length > 0 && onEnvironmentChange) {
-          await EnvironmentApiService.setActiveEnvironment(workspaceId, defaultEnvs[0].id);
-          onEnvironmentChange(defaultEnvs[0].id);
-        }
-      }
+      // Note: No auto-creation of default environments
+      // Users can manually create environments as needed
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load environments');
     } finally {
@@ -79,17 +70,30 @@ export const EnvironmentManagement: React.FC<EnvironmentManagementProps> = ({
   const handleSaveEnvironment = async (environment: Environment) => {
     try {
       if (editingEnvironment) {
+        console.log('Updating existing environment:', environment);
         await EnvironmentApiService.updateEnvironment(environment);
       } else {
-        await EnvironmentApiService.createEnvironment(
+        console.log('Creating new environment:', environment);
+        // First create the environment
+        const newEnv = await EnvironmentApiService.createEnvironment(
           workspaceId,
           environment.name
         );
+        
+        // Then add variables if any exist
+        const variables = Object.values(environment.variables);
+        if (variables.length > 0) {
+          console.log('Adding variables to new environment:', variables);
+          for (const variable of variables) {
+            await EnvironmentApiService.addVariable(newEnv.id, variable);
+          }
+        }
       }
       
       await loadEnvironments();
       setIsEditorOpen(false);
     } catch (err) {
+      console.error('Save environment error:', err);
       setError(err instanceof Error ? err.message : 'Failed to save environment');
     }
   };
@@ -243,8 +247,47 @@ export const EnvironmentManagement: React.FC<EnvironmentManagementProps> = ({
 
       {/* Content */}
       {activeTab === 'overview' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {environments.map(environment => {
+        <>
+          {environments.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                <Cog6ToothIcon className="w-8 h-8 text-slate-400" />
+              </div>
+              <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100 mb-2">
+                No Environments
+              </h3>
+              <p className="text-slate-500 dark:text-slate-400 mb-6 max-w-md">
+                Environments help you manage different configurations for development, staging, and production.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button
+                  variant="primary"
+                  onClick={handleCreateEnvironment}
+                  className="flex items-center space-x-2"
+                >
+                  <PlusIcon className="w-4 h-4" />
+                  <span>Create Environment</span>
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={async () => {
+                    try {
+                      await EnvironmentApiService.createDefaultEnvironments(workspaceId);
+                      await loadEnvironments();
+                    } catch (err) {
+                      console.error('Failed to create default environments:', err);
+                      alert('Failed to create default environments. Please try again.');
+                    }
+                  }}
+                  className="flex items-center space-x-2"
+                >
+                  <span>Create Default Environments</span>
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {environments.map(environment => {
             const status = getEnvironmentStatus(environment);
             const isActive = environment.id === activeEnvironmentId;
             
@@ -327,7 +370,9 @@ export const EnvironmentManagement: React.FC<EnvironmentManagementProps> = ({
               </Card>
             );
           })}
-        </div>
+            </div>
+          )}
+        </>
       )}
 
 

@@ -2,8 +2,10 @@ use crate::models::workspace::{
     CreateWorkspaceRequest, UpdateWorkspaceRequest, Workspace, WorkspaceSettings, WorkspaceSummary,
 };
 use crate::services::database_service::DatabaseService;
+use crate::services::git_service::GitService;
 use std::sync::{Arc, Mutex};
 use tauri::State;
+use tokio::fs;
 
 // Global state for Database service
 pub type DatabaseServiceState = Mutex<Option<Arc<DatabaseService>>>;
@@ -68,6 +70,25 @@ pub async fn workspace_database_health_check(
 }
 
 #[tauri::command]
+pub async fn workspace_run_migrations(
+    db_service: tauri::State<'_, DatabaseServiceState>,
+) -> Result<String, String> {
+    let db = {
+        let state = db_service.lock().map_err(|e| format!("Database lock error: {}", e))?;
+        match state.as_ref() {
+            Some(db) => db.clone(),
+            None => return Err("Database not initialized".to_string())
+        }
+    };
+    
+    // Run the migration to ensure all tables exist (including new environment tables)
+    crate::services::database_service::DatabaseService::run_migrations(&db.get_pool()).await
+        .map_err(|e| format!("Migration failed: {}", e))?;
+    
+    Ok("Database migrations completed successfully".to_string())
+}
+
+#[tauri::command]
 pub async fn workspace_create(
     request: CreateWorkspaceRequest,
     db_service: State<'_, DatabaseServiceState>,
@@ -75,12 +96,191 @@ pub async fn workspace_create(
     let db = get_db!(db_service);
 
     let workspace = Workspace::new(request);
+    let workspace_path = expand_tilde_path(&workspace.local_path);
+    let git_service = GitService::new();
     
+    if let Some(git_url) = &workspace.git_repository_url {
+        // Clone existing repository (this will create the directory and populate it)
+        eprintln!("Cloning Git repository: {} -> {}", git_url, workspace_path);
+        match git_service.clone_repository(git_url, &workspace_path, None) {
+            Ok(result) => {
+                eprintln!("Git clone result: success={}, message={}", result.success, result.message);
+                if !result.success {
+                    let detailed_error = if result.message.contains("authentication required") {
+                        format!("Git authentication failed. Please ensure:\n• Your SSH key is added to ssh-agent: `ssh-add ~/.ssh/id_rsa`\n• Your SSH key is added to your Git provider (GitHub/GitLab/etc.)\n• The repository URL is correct: {}\n\nOriginal error: {}", git_url, result.message)
+                    } else if result.message.contains("not found") || result.message.contains("does not exist") {
+                        format!("Repository not found. Please check:\n• The repository URL is correct: {}\n• You have access to the repository\n• The repository exists\n\nOriginal error: {}", git_url, result.message)
+                    } else {
+                        format!("Failed to clone Git repository: {}", result.message)
+                    };
+                    return Err(detailed_error);
+                }
+            }
+            Err(e) => {
+                eprintln!("Git clone unexpected error: {}", e);
+                return Err(format!("Git clone system error: {}", e));
+            }
+        }
+        
+        // Create workspace subdirectories inside cloned repo
+        let collections_dir = format!("{}/collections", workspace_path);
+        let environments_dir = format!("{}/environments", workspace_path);
+        let postgirl_dir = format!("{}/.postgirl", workspace_path);
+        
+        // Only create directories if they don't exist (don't overwrite cloned content)
+        if !fs::metadata(&collections_dir).await.is_ok() {
+            fs::create_dir_all(&collections_dir)
+                .await
+                .map_err(|e| format!("Failed to create collections directory: {}", e))?;
+        }
+        
+        if !fs::metadata(&environments_dir).await.is_ok() {
+            fs::create_dir_all(&environments_dir)
+                .await
+                .map_err(|e| format!("Failed to create environments directory: {}", e))?;
+        }
+        
+        if !fs::metadata(&postgirl_dir).await.is_ok() {
+            fs::create_dir_all(&postgirl_dir)
+                .await
+                .map_err(|e| format!("Failed to create .postgirl directory: {}", e))?;
+        }
+        
+    } else {
+        // Create the workspace directory first for local-only workspaces
+        fs::create_dir_all(&workspace_path)
+            .await
+            .map_err(|e| format!("Failed to create workspace directory '{}': {}", workspace_path, e))?;
+
+        // Create workspace subdirectories
+        let collections_dir = format!("{}/collections", workspace_path);
+        let environments_dir = format!("{}/environments", workspace_path);
+        let postgirl_dir = format!("{}/.postgirl", workspace_path);
+        
+        fs::create_dir_all(&collections_dir)
+            .await
+            .map_err(|e| format!("Failed to create collections directory: {}", e))?;
+        
+        fs::create_dir_all(&environments_dir)
+            .await
+            .map_err(|e| format!("Failed to create environments directory: {}", e))?;
+        
+        fs::create_dir_all(&postgirl_dir)
+            .await
+            .map_err(|e| format!("Failed to create .postgirl directory: {}", e))?;
+
+        // Initialize new Git repository
+        match git_service.initialize_repository(&workspace_path) {
+            Ok(result) => {
+                if !result.success {
+                    eprintln!("Warning: Failed to initialize Git repository: {}", result.message);
+                    // Continue with workspace creation even if Git init fails
+                }
+            }
+            Err(e) => {
+                eprintln!("Warning: Git initialization error: {}", e);
+                // Continue with workspace creation even if Git init fails
+            }
+        }
+        
+        // Create default .gitignore file only for new repositories
+        let gitignore_path = format!("{}/.gitignore", workspace_path);
+        if !fs::metadata(&gitignore_path).await.is_ok() {
+            let gitignore_content = r#"# Postgirl workspace files
+.postgirl/cache/
+.postgirl/logs/
+.DS_Store
+Thumbs.db
+
+# Environment files with secrets
+**/*.env.local
+**/*.env.secret
+
+# Temporary files
+*.tmp
+*.temp
+"#;
+            
+            if let Err(e) = fs::write(&gitignore_path, gitignore_content).await {
+                eprintln!("Warning: Failed to create .gitignore file: {}", e);
+                // Continue even if .gitignore creation fails
+            }
+        }
+    }
+
+    // Create workspace in database
     db.create_workspace(&workspace)
         .await
-        .map_err(|e| format!("Failed to create workspace: {}", e))?;
+        .map_err(|e| format!("Failed to create workspace in database: {}", e))?;
 
     Ok(workspace)
+}
+
+// Helper function to expand tilde paths
+fn expand_tilde_path(path: &str) -> String {
+    if path.starts_with("~/") {
+        if let Ok(home_dir) = std::env::var("HOME") {
+            return path.replacen("~", &home_dir, 1);
+        }
+    }
+    path.to_string()
+}
+
+#[tauri::command]
+pub async fn workspace_check_directory_exists(path: String) -> Result<bool, String> {
+    let expanded_path = expand_tilde_path(&path);
+    
+    match fs::metadata(&expanded_path).await {
+        Ok(metadata) => {
+            if metadata.is_dir() {
+                // Check if directory is empty
+                match fs::read_dir(&expanded_path).await {
+                    Ok(mut entries) => {
+                        // Directory exists and has contents - this would conflict with Git clone
+                        Ok(entries.next_entry().await.map_err(|e| e.to_string())?.is_some())
+                    }
+                    Err(_) => {
+                        // Directory exists but can't read it (permission issue)
+                        Ok(true)
+                    }
+                }
+            } else {
+                // Path exists but is not a directory (file) - this would conflict
+                Ok(true)
+            }
+        }
+        Err(_) => {
+            // Path doesn't exist - this is good for both Git clone and local creation
+            Ok(false)
+        }
+    }
+}
+
+// Additional command to check if parent directory exists and is writable
+#[tauri::command]
+pub async fn workspace_check_parent_directory(path: String) -> Result<bool, String> {
+    let expanded_path = expand_tilde_path(&path);
+    
+    if let Some(parent) = std::path::Path::new(&expanded_path).parent() {
+        match fs::metadata(parent).await {
+            Ok(metadata) => {
+                if metadata.is_dir() {
+                    // Parent exists and is a directory
+                    Ok(true)
+                } else {
+                    // Parent exists but is not a directory
+                    Ok(false)
+                }
+            }
+            Err(_) => {
+                // Parent doesn't exist
+                Ok(false)
+            }
+        }
+    } else {
+        // Invalid path (no parent)
+        Ok(false)
+    }
 }
 
 #[tauri::command]

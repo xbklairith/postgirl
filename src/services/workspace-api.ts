@@ -12,6 +12,10 @@ export async function initializeDatabase(databasePath: string): Promise<boolean>
   return await invoke('workspace_initialize_database', { databasePath });
 }
 
+export async function runDatabaseMigrations(): Promise<string> {
+  return await invoke('workspace_run_migrations');
+}
+
 // Workspace CRUD operations
 export async function createWorkspace(request: CreateWorkspaceRequest): Promise<Workspace> {
   return await invoke('workspace_create', { request });
@@ -69,4 +73,9 @@ export async function getGitStatus(repoPath: string) {
 
 export async function checkGitRepository(path: string): Promise<boolean> {
   return await invoke('git_check_repository', { path });
+}
+
+// Directory validation
+export async function checkDirectoryExists(path: string): Promise<boolean> {
+  return await invoke('workspace_check_directory_exists', { path });
 }

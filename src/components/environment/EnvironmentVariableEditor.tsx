@@ -262,10 +262,10 @@ export const EnvironmentVariableEditor: React.FC<EnvironmentVariableEditorProps>
         <div className="space-y-4">
           {/* Header Row */}
           <div className="grid grid-cols-12 gap-3 px-3 py-2 text-xs font-medium text-slate-500 dark:text-slate-400 border-b border-slate-200/60 dark:border-slate-600/60">
-            <div className="col-span-1">Enabled</div>
+            <div className="col-span-1">Type</div>
             <div className="col-span-3">Name</div>
             <div className="col-span-3">Value</div>
-            <div className="col-span-2">Type</div>
+            <div className="col-span-2">Variable Type</div>
             <div className="col-span-1">Secret</div>
             <div className="col-span-1">Status</div>
             <div className="col-span-1">Actions</div>

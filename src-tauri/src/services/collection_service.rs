@@ -2,16 +2,21 @@ use crate::models::collection::{
     Collection, Request, CreateCollectionRequest, UpdateCollectionRequest,
     CreateRequestRequest, UpdateRequestRequest, CollectionSummary,
 };
+use crate::services::file_sync_service::FileSyncService;
 use sqlx::{SqlitePool, Row};
 use anyhow::{Result, anyhow};
 
 pub struct CollectionService {
     pool: SqlitePool,
+    file_sync: FileSyncService,
 }
 
 impl CollectionService {
     pub fn new(pool: SqlitePool) -> Self {
-        Self { pool }
+        Self { 
+            pool,
+            file_sync: FileSyncService::new(),
+        }
     }
 
     // Collection CRUD operations
@@ -36,6 +41,13 @@ impl CollectionService {
         .execute(&self.pool)
         .await
         .map_err(|e| anyhow!("Failed to create collection: {}", e))?;
+
+        // Write collection file to Git repository
+        let requests = Vec::new(); // New collection has no requests yet
+        if let Err(e) = self.file_sync.write_collection_file(&collection, requests).await {
+            eprintln!("Warning: Failed to write collection file: {}", e);
+            // Don't fail the entire operation if file sync fails
+        }
 
         Ok(collection)
     }
@@ -90,15 +102,33 @@ impl CollectionService {
         .await
         .map_err(|e| anyhow!("Failed to update collection: {}", e))?;
 
+        // Update collection file in Git repository
+        let requests = self.list_requests(&collection.id).await?;
+        if let Err(e) = self.file_sync.write_collection_file(&collection, requests).await {
+            eprintln!("Warning: Failed to update collection file: {}", e);
+            // Don't fail the entire operation if file sync fails
+        }
+
         Ok(collection)
     }
 
     pub async fn delete_collection(&self, id: &str) -> Result<()> {
+        // Get collection info before deleting
+        let collection = self.get_collection(id).await?;
+        
         sqlx::query("DELETE FROM collections WHERE id = ?1")
             .bind(id)
             .execute(&self.pool)
             .await
             .map_err(|e| anyhow!("Failed to delete collection: {}", e))?;
+
+        // Delete collection file from Git repository
+        if let Some(collection) = collection {
+            if let Err(e) = self.file_sync.delete_collection_file(&collection.workspace_id, &collection.name).await {
+                eprintln!("Warning: Failed to delete collection file: {}", e);
+                // Don't fail the entire operation if file sync fails
+            }
+        }
 
         Ok(())
     }
@@ -200,6 +230,14 @@ impl CollectionService {
         .await
         .map_err(|e| anyhow!("Failed to create request: {}", e))?;
 
+        // Update collection file with new request
+        if let Ok(Some(collection)) = self.get_collection(&req.collection_id).await {
+            let requests = self.list_requests(&req.collection_id).await?;
+            if let Err(e) = self.file_sync.write_collection_file(&collection, requests).await {
+                eprintln!("Warning: Failed to update collection file after creating request: {}", e);
+            }
+        }
+
         Ok(req)
     }
 
@@ -268,15 +306,36 @@ impl CollectionService {
         .await
         .map_err(|e| anyhow!("Failed to update request: {}", e))?;
 
+        // Update collection file with updated request
+        if let Ok(Some(collection)) = self.get_collection(&req.collection_id).await {
+            let requests = self.list_requests(&req.collection_id).await?;
+            if let Err(e) = self.file_sync.write_collection_file(&collection, requests).await {
+                eprintln!("Warning: Failed to update collection file after updating request: {}", e);
+            }
+        }
+
         Ok(req)
     }
 
     pub async fn delete_request(&self, id: &str) -> Result<()> {
+        // Get request info before deleting
+        let request = self.get_request(id).await?;
+        
         sqlx::query("DELETE FROM requests WHERE id = ?1")
             .bind(id)
             .execute(&self.pool)
             .await
             .map_err(|e| anyhow!("Failed to delete request: {}", e))?;
+
+        // Update collection file after deleting request
+        if let Some(request) = request {
+            if let Ok(Some(collection)) = self.get_collection(&request.collection_id).await {
+                let requests = self.list_requests(&request.collection_id).await?;
+                if let Err(e) = self.file_sync.write_collection_file(&collection, requests).await {
+                    eprintln!("Warning: Failed to update collection file after deleting request: {}", e);
+                }
+            }
+        }
 
         Ok(())
     }
@@ -338,7 +397,10 @@ impl CollectionService {
             order_index: Some(original.order_index + 1),
         };
 
-        self.create_request(request).await
+        let duplicated_request = self.create_request(request).await?;
+        
+        // File sync is already handled in create_request
+        Ok(duplicated_request)
     }
 
     pub async fn reorder_requests(&self, collection_id: &str, request_orders: Vec<(String, i32)>) -> Result<()> {

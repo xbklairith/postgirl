@@ -6,6 +6,7 @@ use git2::{
 };
 use std::path::Path;
 
+#[derive(Clone)]
 pub struct GitService;
 
 // Git2 repositories are not thread-safe, so we don't cache them
@@ -23,29 +24,133 @@ impl GitService {
         credentials: Option<&GitCredentials>,
     ) -> Result<CloneResult> {
         let mut builder = git2::build::RepoBuilder::new();
+        let mut callbacks = RemoteCallbacks::new();
 
-        if let Some(creds) = credentials {
-            let mut callbacks = RemoteCallbacks::new();
-            callbacks.credentials(|_url, _username_from_url, _allowed_types| {
-                Cred::userpass_plaintext(&creds.username, &creds.password)
-            });
+        // Track authentication attempts to prevent infinite loops
+        let auth_attempts = std::sync::Arc::new(std::sync::Mutex::new(0));
+        let auth_attempts_clone = auth_attempts.clone();
+        
+        // Track which methods we've tried
+        let tried_methods = std::sync::Arc::new(std::sync::Mutex::new(std::collections::HashSet::new()));
+        let tried_methods_clone = tried_methods.clone();
 
-            let mut fetch_options = FetchOptions::new();
-            fetch_options.remote_callbacks(callbacks);
-            builder.fetch_options(fetch_options);
-        }
+        // Set up authentication callback for both SSH and HTTPS
+        callbacks.credentials(move |url, username_from_url, allowed_types| {
+            // Prevent infinite loops by limiting attempts
+            let attempt_num = {
+                let mut attempts = auth_attempts_clone.lock().unwrap();
+                *attempts += 1;
+                *attempts
+            };
+            
+            if attempt_num > 3 {
+                eprintln!("Too many authentication attempts ({}), giving up", attempt_num);
+                return Err(git2::Error::from_str("Authentication failed after multiple attempts"));
+            }
+            
+            eprintln!("Git authentication attempt #{} for URL: {}", attempt_num, url);
+            eprintln!("Username from URL: {:?}", username_from_url);
+            eprintln!("Allowed credential types: {:?}", allowed_types);
+
+            // Check what methods we've already tried
+            let mut tried = tried_methods_clone.lock().unwrap();
+
+            // Try SSH key authentication first (for git@hostname URLs)
+            if allowed_types.contains(git2::CredentialType::SSH_KEY) {
+                let username = username_from_url.unwrap_or("git");
+                
+                // Try SSH agent first (only on first attempt)
+                if attempt_num == 1 && !tried.contains("ssh_agent") {
+                    tried.insert("ssh_agent".to_string());
+                    eprintln!("Attempting SSH agent authentication");
+                    
+                    match Cred::ssh_key_from_agent(username) {
+                        Ok(cred) => {
+                            eprintln!("Created SSH agent credential, testing...");
+                            return Ok(cred);
+                        }
+                        Err(e) => {
+                            eprintln!("SSH agent failed: {}", e);
+                        }
+                    }
+                }
+                
+                // Try SSH key files
+                if !tried.contains("ssh_keys") {
+                    tried.insert("ssh_keys".to_string());
+                    let home_dir = std::env::var("HOME").unwrap_or_default();
+                    
+                    let ssh_key_types = [
+                        ("id_ed25519", "id_ed25519.pub"),
+                        ("id_rsa", "id_rsa.pub"),
+                        ("id_ecdsa", "id_ecdsa.pub"),
+                    ];
+                    
+                    for (private_name, public_name) in &ssh_key_types {
+                        let private_key_path = format!("{}/.ssh/{}", home_dir, private_name);
+                        let public_key_path = format!("{}/.ssh/{}", home_dir, public_name);
+                        
+                        if std::path::Path::new(&private_key_path).exists() {
+                            eprintln!("Attempting SSH key authentication with {}", private_key_path);
+                            match Cred::ssh_key(username, Some(Path::new(&public_key_path)), Path::new(&private_key_path), None) {
+                                Ok(cred) => {
+                                    eprintln!("Created SSH key credential with {}, testing...", private_name);
+                                    return Ok(cred);
+                                }
+                                Err(e) => {
+                                    eprintln!("Failed to create SSH key credential with {}: {}", private_name, e);
+                                }
+                            }
+                        } else {
+                            eprintln!("SSH key file not found: {}", private_key_path);
+                        }
+                    }
+                }
+            }
+
+            // Try username/password authentication for HTTPS
+            if allowed_types.contains(git2::CredentialType::USER_PASS_PLAINTEXT) && !tried.contains("userpass") {
+                tried.insert("userpass".to_string());
+                if let Some(creds) = credentials {
+                    eprintln!("Using provided username/password credentials");
+                    return Cred::userpass_plaintext(&creds.username, &creds.password);
+                }
+            }
+
+            eprintln!("No more authentication methods to try (attempted: {:?})", tried);
+            Err(git2::Error::from_str("No authentication method available"))
+        });
+
+        // Add certificate check callback for SSH
+        callbacks.certificate_check(|_cert, valid| {
+            eprintln!("Certificate check - valid: {}", valid);
+            // For now, accept all certificates (similar to ssh -o StrictHostKeyChecking=no)
+            // In production, you'd want to verify against known_hosts
+            Ok(git2::CertificateCheckStatus::CertificateOk)
+        });
+
+        let mut fetch_options = FetchOptions::new();
+        fetch_options.remote_callbacks(callbacks);
+        builder.fetch_options(fetch_options);
 
         match builder.clone(url, Path::new(path)) {
-            Ok(_repo) => Ok(CloneResult {
-                success: true,
-                path: path.to_string(),
-                message: "Repository cloned successfully".to_string(),
-            }),
-            Err(e) => Ok(CloneResult {
-                success: false,
-                path: path.to_string(),
-                message: format!("Failed to clone repository: {}", e),
-            }),
+            Ok(_repo) => {
+                eprintln!("Successfully cloned repository: {} -> {}", url, path);
+                Ok(CloneResult {
+                    success: true,
+                    path: path.to_string(),
+                    message: "Repository cloned successfully".to_string(),
+                })
+            },
+            Err(e) => {
+                let error_msg = format!("Failed to clone repository: {}", e);
+                eprintln!("Git clone error: {}", error_msg);
+                Ok(CloneResult {
+                    success: false,
+                    path: path.to_string(),
+                    message: error_msg,
+                })
+            },
         }
     }
 
@@ -184,6 +289,85 @@ impl GitService {
 
     pub fn check_repository_exists(&self, path: &str) -> bool {
         Repository::open(path).is_ok()
+    }
+
+    /// Add all changes to staging area
+    pub fn add_all_changes(&self, repo_path: &str) -> Result<CloneResult> {
+        let repo = self.open_repository(repo_path)?;
+        let mut index = repo.index().map_err(|e| anyhow::anyhow!("Failed to get index: {}", e))?;
+        
+        // Add all files to the index
+        index.add_all(["*"].iter(), git2::IndexAddOption::DEFAULT, None)
+            .map_err(|e| anyhow::anyhow!("Failed to add files: {}", e))?;
+        
+        index.write().map_err(|e| anyhow::anyhow!("Failed to write index: {}", e))?;
+
+        Ok(CloneResult {
+            success: true,
+            path: repo_path.to_string(),
+            message: "Added all changes to staging area".to_string(),
+        })
+    }
+
+    /// Commit staged changes
+    pub fn commit_changes(&self, repo_path: &str, message: &str) -> Result<CloneResult> {
+        let repo = self.open_repository(repo_path)?;
+        
+        // Get the signature (author)
+        let signature = match repo.signature() {
+            Ok(sig) => sig,
+            Err(_) => {
+                // Fallback to a default signature if none configured
+                git2::Signature::now("Postgirl", "postgirl@localhost")
+                    .map_err(|e| anyhow::anyhow!("Failed to create signature: {}", e))?
+            }
+        };
+
+        // Get the tree from the index
+        let mut index = repo.index().map_err(|e| anyhow::anyhow!("Failed to get index: {}", e))?;
+        let tree_id = index.write_tree().map_err(|e| anyhow::anyhow!("Failed to write tree: {}", e))?;
+        let tree = repo.find_tree(tree_id).map_err(|e| anyhow::anyhow!("Failed to find tree: {}", e))?;
+
+        // Get the parent commit (if any)
+        let parent_commit = repo.head()
+            .and_then(|h| h.target().ok_or(git2::Error::from_str("No target")))
+            .and_then(|oid| repo.find_commit(oid))
+            .ok();
+
+        // Create the commit
+        let commit_result = if let Some(parent) = parent_commit {
+            repo.commit(
+                Some("HEAD"),
+                &signature,
+                &signature,
+                message,
+                &tree,
+                &[&parent],
+            )
+        } else {
+            // Initial commit
+            repo.commit(
+                Some("HEAD"),
+                &signature,
+                &signature,
+                message,
+                &tree,
+                &[],
+            )
+        };
+
+        match commit_result {
+            Ok(_oid) => Ok(CloneResult {
+                success: true,
+                path: repo_path.to_string(),
+                message: format!("Committed changes: {}", message),
+            }),
+            Err(e) => Ok(CloneResult {
+                success: false,
+                path: repo_path.to_string(),
+                message: format!("Failed to commit: {}", e),
+            }),
+        }
     }
 }
 

@@ -42,7 +42,12 @@ export const Select: React.FC<SelectProps> = ({
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (selectRef.current && !selectRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
+        // Check if click is inside the dropdown portal
+        const target = event.target as Element;
+        const isClickInsideDropdown = target.closest('[data-dropdown-portal="select"]');
+        if (!isClickInsideDropdown) {
+          setIsOpen(false);
+        }
       }
     };
 
@@ -101,8 +106,9 @@ export const Select: React.FC<SelectProps> = ({
 
     return createPortal(
       <div 
+        data-dropdown-portal="select"
         className={cn(
-          'fixed rounded-lg shadow-xl z-[9999]',
+          'fixed rounded-lg shadow-xl z-[100]',
           'bg-white/95 dark:bg-slate-800/95 backdrop-blur-lg',
           'border border-slate-200/60 dark:border-slate-600/60',
           'ring-1 ring-black ring-opacity-5',
