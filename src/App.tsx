@@ -2,6 +2,10 @@ import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { Button, Input, Card, CardHeader, CardBody, Modal } from "./components/ui";
 import { WorkspaceDashboard } from "./components/workspace";
+import { HttpRequestForm } from "./components/http";
+import { EnvironmentDemo } from "./components/environment/EnvironmentDemo";
+import { CollectionBrowser } from "./components/collection";
+import { BranchManager } from "./components/git";
 import { useWorkspaceInitialization } from "./stores/workspace-store";
 import { useTheme } from "./hooks/use-theme";
 
@@ -10,7 +14,7 @@ function App() {
   const [name, setName] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [healthStatus, setHealthStatus] = useState("");
-  const [currentView, setCurrentView] = useState<'demo' | 'workspaces'>('workspaces');
+  const [currentView, setCurrentView] = useState<'demo' | 'workspaces' | 'http' | 'environments' | 'collections' | 'git'>('workspaces');
   const { currentTheme, toggleTheme } = useTheme();
   
   // Initialize workspace database
@@ -53,6 +57,30 @@ function App() {
             Workspaces
           </Button>
           <Button 
+            variant={currentView === 'http' ? 'primary' : 'ghost'} 
+            onClick={() => setCurrentView('http')}
+          >
+            HTTP Testing
+          </Button>
+          <Button 
+            variant={currentView === 'environments' ? 'primary' : 'ghost'} 
+            onClick={() => setCurrentView('environments')}
+          >
+            Environments
+          </Button>
+          <Button 
+            variant={currentView === 'collections' ? 'primary' : 'ghost'} 
+            onClick={() => setCurrentView('collections')}
+          >
+            Collections
+          </Button>
+          <Button 
+            variant={currentView === 'git' ? 'primary' : 'ghost'} 
+            onClick={() => setCurrentView('git')}
+          >
+            Git
+          </Button>
+          <Button 
             variant={currentView === 'demo' ? 'primary' : 'ghost'} 
             onClick={() => setCurrentView('demo')}
           >
@@ -75,6 +103,59 @@ function App() {
               // Navigate to selected workspace
             }}
           />
+        )}
+
+        {currentView === 'http' && (
+          <div>
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                HTTP Request Testing 🚀
+              </h2>
+              <p className="text-slate-600 dark:text-slate-400 mt-2">
+                Test API endpoints with our powerful HTTP client
+              </p>
+            </div>
+            <HttpRequestForm 
+              onResponse={() => {
+                // Handle response
+              }}
+              onError={() => {
+                // Handle error  
+              }}
+            />
+          </div>
+        )}
+
+        {currentView === 'environments' && (
+          <EnvironmentDemo />
+        )}
+
+        {currentView === 'collections' && (
+          <div className="h-[calc(100vh-200px)]">
+            <CollectionBrowser 
+              workspaceId="default-workspace"
+              onRequestSelect={(request) => {
+                // TODO: Switch to HTTP view and load request
+                console.log('Selected request:', request);
+              }}
+              onRequestEdit={(request) => {
+                // TODO: Open request editor
+                console.log('Edit request:', request);
+              }}
+            />
+          </div>
+        )}
+
+        {currentView === 'git' && (
+          <div className="h-[calc(100vh-200px)]">
+            <BranchManager 
+              workspacePath="/tmp/demo-workspace"
+              workspaceName="demo-workspace"
+              onBranchChange={(branch) => {
+                console.log('Branch changed:', branch);
+              }}
+            />
+          </div>
         )}
 
         {currentView === 'demo' && (
@@ -179,9 +260,18 @@ function App() {
             {/* Feature Preview */}
             <Card>
               <CardHeader>
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                  Coming Soon: Full API Testing Suite
-                </h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                    API Testing Suite Features
+                  </h3>
+                  <Button 
+                    variant="primary" 
+                    size="sm"
+                    onClick={() => setCurrentView('environments')}
+                  >
+                    Try Environment Management →
+                  </Button>
+                </div>
               </CardHeader>
               <CardBody>
                 <div className="grid md:grid-cols-3 gap-4">
@@ -190,10 +280,10 @@ function App() {
                     <h4 className="font-medium text-slate-900 dark:text-slate-100">Git Integration</h4>
                     <p className="text-sm text-slate-600 dark:text-slate-400">Version control for API collections</p>
                   </div>
-                  <div className="text-center p-4 rounded-lg bg-gradient-to-br from-success-50 to-success-100 dark:from-success-900/20 dark:to-success-800/20">
-                    <div className="text-2xl mb-2">🌍</div>
+                  <div className="text-center p-4 rounded-lg bg-gradient-to-br from-success-50 to-success-100 dark:from-success-900/20 dark:to-success-800/20 border-2 border-success-200 dark:border-success-800">
+                    <div className="text-2xl mb-2">🌍 ✅</div>
                     <h4 className="font-medium text-slate-900 dark:text-slate-100">Environment Management</h4>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">Consistent variable schemas</p>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">Consistent variable schemas - <strong>Available now!</strong></p>
                   </div>
                   <div className="text-center p-4 rounded-lg bg-gradient-to-br from-warning-50 to-warning-100 dark:from-warning-900/20 dark:to-warning-800/20">
                     <div className="text-2xl mb-2">⚡</div>

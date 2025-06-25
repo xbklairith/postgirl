@@ -57,29 +57,35 @@ export const Modal: React.FC<ModalProps> = ({
   };
 
   const modalContent = (
-    <div className="modal-overlay" onClick={onClose}>
+    <div 
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto" 
+      onClick={onClose}
+    >
       <div
         className={cn(
-          'modal-content',
+          'bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700',
+          'w-full animate-scale-in my-8 max-h-[calc(100vh-4rem)] overflow-y-auto',
           sizeClasses[size],
           className
         )}
         onClick={(e) => e.stopPropagation()}
       >
-        {title && (
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-              {title}
-            </h2>
-            <button
-              onClick={onClose}
-              className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
-            >
-              <CloseIcon />
-            </button>
-          </div>
-        )}
-        {children}
+        <div className="p-6">
+          {title && (
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                {title}
+              </h2>
+              <button
+                onClick={onClose}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+              >
+                <CloseIcon />
+              </button>
+            </div>
+          )}
+          {children}
+        </div>
       </div>
     </div>
   );
