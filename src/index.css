@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -200,5 +201,54 @@
 
   .animate-slide-up {
     animation: slide-up 0.3s ease-out;
+  }
+
+  /* Coding font utilities */
+  .font-code {
+    font-family: "Source Code Pro", "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace !important;
+    font-style: normal !important;
+    font-feature-settings: "liga" 0, "calt" 0;
+    font-variant-ligatures: none;
+    font-variant-numeric: slashed-zero;
+    letter-spacing: 0.025em;
+  }
+
+  .font-mono {
+    font-family: "Source Code Pro", "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace !important;
+    font-style: normal !important;
+    font-feature-settings: "liga" 0, "calt" 0;
+    font-variant-ligatures: none;
+    font-variant-numeric: slashed-zero;
+    letter-spacing: 0;
+  }
+
+  /* Fix cursor positioning in variable highlighter */
+  .variable-highlighter-container {
+    font-family: ui-monospace, Menlo, Monaco, "Cascadia Code", "Segoe UI Mono", "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace", "Source Code Pro", "Fira Mono", "Droid Sans Mono", "Courier New", monospace !important;
+    font-style: normal !important;
+  }
+
+  .variable-highlighter-container * {
+    box-sizing: border-box !important;
+    font-family: ui-monospace, Menlo, Monaco, "Cascadia Code", "Segoe UI Mono", "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace", "Source Code Pro", "Fira Mono", "Droid Sans Mono", "Courier New", monospace !important;
+    font-style: normal !important;
+    font-feature-settings: "liga" 0, "kern" 0, "calt" 0 !important;
+    font-variant-ligatures: none !important;
+    letter-spacing: 0 !important;
+    word-spacing: 0 !important;
+    text-indent: 0 !important;
+    font-kerning: none !important;
+    text-rendering: optimizeSpeed !important;
+    font-size: 14px !important;
+    line-height: 1.42857 !important;
+    font-weight: 400 !important;
+  }
+
+  .variable-highlighter-input {
+    caret-color: #1e293b !important;
+  }
+
+  .dark .variable-highlighter-input {
+    caret-color: #f1f5f9 !important;
   }
 }

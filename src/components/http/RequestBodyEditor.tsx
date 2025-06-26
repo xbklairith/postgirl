@@ -119,10 +119,20 @@ export const RequestBodyEditor: React.FC<RequestBodyEditorProps> = ({
   const formatJsonContent = () => {
     if (body.type === 'json') {
       try {
-        const formatted = JSON.stringify(body.data, null, 2);
-        onChange({ ...body, data: JSON.parse(formatted), content: formatted });
-      } catch {
-        // Ignore formatting errors
+        // If we have content, try to parse and format it
+        if (body.content) {
+          const parsed = JSON.parse(body.content);
+          const formatted = JSON.stringify(parsed, null, 2);
+          onChange({ ...body, data: parsed, content: formatted });
+        } else if (body.data) {
+          // If we only have data, format it
+          const formatted = JSON.stringify(body.data, null, 2);
+          onChange({ ...body, data: body.data, content: formatted });
+        }
+      } catch (error) {
+        // If JSON is invalid, keep current content unchanged
+        // Don't clear the content on formatting errors
+        console.warn('JSON formatting failed:', error);
       }
     }
   };
@@ -205,6 +215,12 @@ export const RequestBodyEditor: React.FC<RequestBodyEditorProps> = ({
               rows={10}
               placeholder='{\n  "key": "value"\n}'
               className="font-mono text-sm"
+              style={{
+                fontFamily: '"SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace',
+                fontSize: '13px',
+                fontWeight: '400',
+                letterSpacing: '0.025em',
+              }}
             />
             <p className="text-xs text-slate-500 dark:text-slate-400">
               Content-Type will be automatically set to application/json
@@ -237,7 +253,7 @@ export const RequestBodyEditor: React.FC<RequestBodyEditorProps> = ({
                       }}
                       variables={variables}
                       placeholder="Field name"
-                      className="text-sm"
+                      className="font-mono text-sm"
                     />
                   </div>
                   <div className="flex-1">
@@ -246,7 +262,7 @@ export const RequestBodyEditor: React.FC<RequestBodyEditorProps> = ({
                       onChange={(newValue) => updateFormField(key, newValue)}
                       variables={variables}
                       placeholder="Field value"
-                      className="text-sm"
+                      className="font-mono text-sm"
                     />
                   </div>
                   <Button
@@ -269,7 +285,7 @@ export const RequestBodyEditor: React.FC<RequestBodyEditorProps> = ({
                   onChange={setNewFormKey}
                   variables={variables}
                   placeholder="New field name"
-                  className="text-sm"
+                  className="font-mono text-sm"
                 />
               </div>
               <div className="flex-1">
@@ -278,7 +294,7 @@ export const RequestBodyEditor: React.FC<RequestBodyEditorProps> = ({
                   onChange={setNewFormValue}
                   variables={variables}
                   placeholder="New field value"
-                  className="text-sm"
+                  className="font-mono text-sm"
                 />
               </div>
               <Button

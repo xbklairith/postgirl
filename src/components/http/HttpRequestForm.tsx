@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { PlayIcon, ClockIcon, CheckCircleIcon, XCircleIcon, CogIcon } from '@heroicons/react/24/outline';
-import { Button, Card, CardHeader, CardBody, Select, VariableHighlighter } from '../ui';
+import { Button, Select, VariableHighlighter } from '../ui';
 import { RequestBodyEditor } from './RequestBodyEditor';
 import { EnvironmentSelector } from '../environment/EnvironmentSelector';
 import { EnvironmentEditor } from '../environment/EnvironmentEditor';
@@ -29,7 +29,7 @@ const convertStringToRequestBody = (bodyString: string, bodyType: string): Reque
       } catch {
         return { type: 'json', data: {}, content: bodyString };
       }
-    case 'form':
+    case 'form': {
       // Parse form data from string
       const fields: Record<string, string> = {};
       if (bodyString) {
@@ -42,6 +42,7 @@ const convertStringToRequestBody = (bodyString: string, bodyType: string): Reque
         }
       }
       return { type: 'formUrlEncoded', fields };
+    }
     case 'raw':
     default:
       return { type: 'raw', content: bodyString, contentType: 'text/plain' };
@@ -87,8 +88,6 @@ export const HttpRequestForm: React.FC<HttpRequestFormProps> = ({
   const [response, setResponse] = useState<HttpResponse | null>(null);
   const [error, setError] = useState<HttpError | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [newHeaderKey, setNewHeaderKey] = useState('');
-  const [newHeaderValue, setNewHeaderValue] = useState('');
 
   // Environment state
   const [environments, setEnvironments] = useState<Environment[]>([]);
@@ -365,58 +364,7 @@ export const HttpRequestForm: React.FC<HttpRequestFormProps> = ({
     }
   };
 
-  const handleQuickTest = async (type: 'get' | 'post' | 'status') => {
-    setIsLoading(true);
-    setResponse(null);
-    setError(null);
 
-    try {
-      const result = await HttpApiService.quickTest(type);
-      
-      if (result.response) {
-        setResponse(result.response);
-        onResponse?.(result.response);
-      } else if (result.error) {
-        setError(result.error);
-        onError?.(result.error);
-      }
-    } catch (err) {
-      const error: HttpError = {
-        errorType: 'unknownError',
-        message: err instanceof Error ? err.message : 'Unknown error',
-        timestamp: new Date().toISOString()
-      };
-      setError(error);
-      onError?.(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const addHeader = () => {
-    if (newHeaderKey.trim() && newHeaderValue.trim()) {
-      setRequest(prev => ({
-        ...prev,
-        headers: {
-          ...prev.headers,
-          [newHeaderKey.trim()]: newHeaderValue.trim()
-        }
-      }));
-      setNewHeaderKey('');
-      setNewHeaderValue('');
-    }
-  };
-
-  const removeHeader = (key: string) => {
-    setRequest(prev => {
-      const newHeaders = { ...prev.headers };
-      delete newHeaders[key];
-      return {
-        ...prev,
-        headers: newHeaders
-      };
-    });
-  };
 
   const renderResponseStatus = () => {
     if (!response) return null;
@@ -446,52 +394,34 @@ export const HttpRequestForm: React.FC<HttpRequestFormProps> = ({
   return (
     <div className="space-y-6">
       {/* Request Form */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                {initialRequest ? request.name : 'HTTP Request'}
-              </h3>
-              {initialRequest && (
-                <span className="px-2 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs rounded-full">
-                  Collection Request
-                </span>
-              )}
-            </div>
-            <div className="flex items-center space-x-3">
-              <EnvironmentSelector
-                environments={environments}
-                activeEnvironmentId={activeEnvironmentId}
-                onEnvironmentChange={handleEnvironmentChange}
-                onCreateEnvironment={handleCreateEnvironment}
-                onEditEnvironment={handleEditEnvironment}
-                onManageEnvironments={() => {}} // Not needed in this context
-                className="min-w-[200px]"
-              />
-              <div className="flex space-x-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleQuickTest('get')}
-                  disabled={isLoading}
-                >
-                  Test GET
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleQuickTest('post')}
-                  disabled={isLoading}
-                >
-                  Test POST
-                </Button>
-              </div>
-            </div>
+      <div className="space-y-6">
+        {/* Header Section */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+              {initialRequest ? request.name : 'HTTP Request'}
+            </h3>
+            {initialRequest && (
+              <span className="px-2 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs rounded-full">
+                Collection Request
+              </span>
+            )}
           </div>
-        </CardHeader>
-        <CardBody>
-          <div className="space-y-4">
+          <div className="flex items-center space-x-3">
+            <EnvironmentSelector
+              environments={environments}
+              activeEnvironmentId={activeEnvironmentId}
+              onEnvironmentChange={handleEnvironmentChange}
+              onCreateEnvironment={handleCreateEnvironment}
+              onEditEnvironment={handleEditEnvironment}
+              onManageEnvironments={() => {}} // Not needed in this context
+              className="min-w-[200px]"
+            />
+          </div>
+        </div>
+
+        {/* Request Form Content */}
+        <div className="space-y-4">
             {/* Method and URL */}
             <div className="flex space-x-2">
               <Select
@@ -531,55 +461,6 @@ export const HttpRequestForm: React.FC<HttpRequestFormProps> = ({
               </Button>
             </div>
 
-            {/* Headers */}
-            <div>
-              <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Headers</h4>
-              <div className="space-y-2">
-                {Object.entries(request.headers).map(([key, value]) => (
-                  <div key={key} className="flex items-center space-x-2">
-                    <span className="text-sm text-slate-600 dark:text-slate-400 min-w-[120px]">{key}:</span>
-                    <span className="text-sm text-slate-900 dark:text-slate-100 flex-1">{value}</span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeHeader(key)}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      Remove
-                    </Button>
-                  </div>
-                ))}
-                
-                <div className="flex items-center space-x-2">
-                  <div className="min-w-[120px]">
-                    <VariableHighlighter
-                      value={newHeaderKey}
-                      onChange={setNewHeaderKey}
-                      variables={getActiveEnvironmentVariables()}
-                      placeholder="Header name"
-                      className="text-sm"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <VariableHighlighter
-                      value={newHeaderValue}
-                      onChange={setNewHeaderValue}
-                      variables={getActiveEnvironmentVariables()}
-                      placeholder="Header value"
-                      className="text-sm"
-                    />
-                  </div>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={addHeader}
-                    disabled={!newHeaderKey.trim() || !newHeaderValue.trim()}
-                  >
-                    Add
-                  </Button>
-                </div>
-              </div>
-            </div>
 
             {/* Request Body */}
             <div>
@@ -632,30 +513,30 @@ export const HttpRequestForm: React.FC<HttpRequestFormProps> = ({
                 </p>
               </div>
             )}
-          </div>
-        </CardBody>
-      </Card>
+        </div>
+      </div>
 
       {/* Response */}
       {(response || error) && (
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                Response
-              </h3>
-              {response && (
-                <div className="flex items-center space-x-4">
-                  {renderResponseStatus()}
-                  <div className="flex items-center space-x-1 text-sm text-slate-500">
-                    <ClockIcon className="w-4 h-4" />
-                    <span>{formatResponseTime(response.timing.totalTimeMs)}</span>
-                  </div>
+        <div className="space-y-4">
+          {/* Response Header */}
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+              Response
+            </h3>
+            {response && (
+              <div className="flex items-center space-x-4">
+                {renderResponseStatus()}
+                <div className="flex items-center space-x-1 text-sm text-slate-500">
+                  <ClockIcon className="w-4 h-4" />
+                  <span>{formatResponseTime(response.timing.totalTimeMs)}</span>
                 </div>
-              )}
-            </div>
-          </CardHeader>
-          <CardBody>
+              </div>
+            )}
+          </div>
+
+          {/* Response Content */}
+          <div>
             {error ? (
               <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
                 <div className="flex items-start space-x-2">
@@ -710,8 +591,8 @@ export const HttpRequestForm: React.FC<HttpRequestFormProps> = ({
                 </div>
               </div>
             ) : null}
-          </CardBody>
-        </Card>
+          </div>
+        </div>
       )}
 
       {/* Environment Editor Modal */}

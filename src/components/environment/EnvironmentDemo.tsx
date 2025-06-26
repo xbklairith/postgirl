@@ -122,32 +122,6 @@ export const EnvironmentDemo: React.FC = () => {
     }
   };
 
-  const runQuickTests = async () => {
-    try {
-      console.log('Running basic environment tests...');
-      
-      // Test basic environment operations
-      const environments = await EnvironmentApiService.listEnvironments(workspaceId);
-      console.log('Current environments:', environments);
-
-      if (environments.length > 0) {
-        // Test variable substitution
-        const testText = "API URL: {{API_URL}}, Debug: {{DEBUG_MODE}}";
-        const variables = { API_URL: 'https://api.example.com', DEBUG_MODE: 'true' };
-        const substituted = await EnvironmentApiService.substituteVariables(testText, variables);
-        console.log('Variable substitution test:', { original: testText, substituted });
-
-        // Test variable extraction
-        const extracted = await EnvironmentApiService.extractVariables(testText);
-        console.log('Variable extraction test:', extracted);
-      }
-
-      alert('Basic tests completed! Check console for results.');
-    } catch (error) {
-      console.error('Tests failed:', error);
-      alert('Tests failed: ' + (error instanceof Error ? error.message : 'Unknown error'));
-    }
-  };
 
   if (!isInitialized) {
     return (
@@ -174,13 +148,6 @@ export const EnvironmentDemo: React.FC = () => {
                 This demo showcases the environment management features with sample data.
               </p>
             </div>
-            <Button
-              variant="primary"
-              onClick={runQuickTests}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              Run Quick Tests
-            </Button>
           </div>
         </div>
 

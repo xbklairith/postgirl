@@ -159,38 +159,26 @@ export const EnvironmentEditor: React.FC<EnvironmentEditorProps> = ({
         {/* Content */}
         <div className="py-6 space-y-6">
             {/* Basic Information */}
-            <Card>
-              <CardHeader>
-                <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100">
-                  Basic Information
-                </h3>
-              </CardHeader>
-              <CardBody className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    Environment Name *
-                  </label>
-                  <Input
-                    value={formData.name}
-                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    placeholder="e.g., Development, Staging, Production"
-                    disabled={readOnly}
-                  />
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Environment Name *
+                </label>
+                <Input
+                  value={formData.name}
+                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="e.g., Development, Staging, Production"
+                  disabled={readOnly}
+                />
+              </div>
+
+              {environment && (
+                <div className="flex items-center space-x-6 text-xs text-slate-500 dark:text-slate-400">
+                  <span>Created: {new Date(environment.createdAt).toLocaleDateString()}</span>
+                  <span>Modified: {new Date(environment.updatedAt).toLocaleDateString()}</span>
                 </div>
-
-
-                {environment && (
-                  <div className="grid grid-cols-2 gap-4 text-sm text-slate-500 dark:text-slate-400">
-                    <div>
-                      <span className="font-medium">Created:</span> {new Date(environment.createdAt).toLocaleDateString()}
-                    </div>
-                    <div>
-                      <span className="font-medium">Modified:</span> {new Date(environment.updatedAt).toLocaleDateString()}
-                    </div>
-                  </div>
-                )}
-              </CardBody>
-            </Card>
+              )}
+            </div>
 
             {/* Variables */}
             <EnvironmentVariableEditor

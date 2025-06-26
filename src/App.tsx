@@ -57,7 +57,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen p-6">
+    <div className="min-h-screen py-4 px-2">
       {/* Header */}
       <div className="header">
         <div className="flex items-center space-x-4">
@@ -98,7 +98,7 @@ function App() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-6xl mx-auto space-y-6">
+      <div className="w-full space-y-6">
         {currentView === 'workspaces' && (
           <WorkspaceDashboard 
             onWorkspaceSelect={() => {
@@ -108,7 +108,7 @@ function App() {
         )}
 
         {currentView === 'api-testing' && (
-          <div id="api-testing-view" className="h-[calc(100vh-200px)]" data-testid="api-testing-container">
+          <div id="api-testing-view" className="h-[calc(100vh-120px)]" data-testid="api-testing-container">
             {activeWorkspace ? (
               <div id="api-testing-main" className="flex h-full bg-white dark:bg-slate-900" data-layout="two-column">
                 {/* Collections Sidebar */}
@@ -144,27 +144,16 @@ function App() {
                 <div id="request-crafting-area" className="flex-1 flex flex-col bg-white dark:bg-slate-900" data-testid="main-content-area">
                   {selectedRequest ? (
                     // HTTP Request Form for editing/testing a specific request
-                    <div id="request-editor" data-testid="request-editor" data-request-id={selectedRequest.id}>
-                      <div id="request-header" className="p-6 border-b border-slate-200/60 dark:border-slate-600/60" data-testid="request-header">
-                        <h2 id="request-title" className="text-xl font-bold text-slate-900 dark:text-slate-100">
-                          {selectedRequest.name}
-                        </h2>
-                        <p id="request-info" className="text-slate-600 dark:text-slate-400 mt-1" data-method={selectedRequest.method}>
-                          {selectedRequest.method} • {selectedRequest.url || 'No URL set'}
-                        </p>
-                      </div>
-                      
-                      <div id="request-form-container" className="flex-1 p-6 overflow-auto" data-testid="http-form">
-                        <HttpRequestForm 
-                          initialRequest={selectedRequest}
-                          onResponse={() => {
-                            // Handle response
-                          }}
-                          onError={() => {
-                            // Handle error  
-                          }}
-                        />
-                      </div>
+                    <div id="request-editor" className="flex-1 p-6 overflow-auto" data-testid="request-editor" data-request-id={selectedRequest.id}>
+                      <HttpRequestForm 
+                        initialRequest={selectedRequest}
+                        onResponse={() => {
+                          // Handle response
+                        }}
+                        onError={() => {
+                          // Handle error  
+                        }}
+                      />
                     </div>
                   ) : selectedCollectionId ? (
                     // Collection selected - show requests area

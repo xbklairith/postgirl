@@ -109,19 +109,8 @@ export const EnvironmentVariableEditor: React.FC<EnvironmentVariableEditorProps>
           'bg-white/50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-600/60',
         )}
       >
-        {/* Variable Type Indicator */}
-        <div className="col-span-1 flex items-center">
-          <span className={`text-xs px-2 py-1 rounded font-medium ${
-            variable.isSecret 
-              ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
-              : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-          }`}>
-            {variable.isSecret ? 'Secret' : 'String'}
-          </span>
-        </div>
-
         {/* Variable Key */}
-        <div className="col-span-3">
+        <div className="col-span-5">
           <Input
             value={variable.key}
             onChange={(e) => {
@@ -143,63 +132,52 @@ export const EnvironmentVariableEditor: React.FC<EnvironmentVariableEditorProps>
         </div>
 
         {/* Variable Value */}
-        <div className="col-span-3 relative">
+        <div className="col-span-6 relative">
           <Input
             type={variable.isSecret && !showSecrets[variable.key] ? 'password' : 'text'}
             value={variable.value}
             onChange={(e) => updateVariable(variable.key, { value: e.target.value })}
             placeholder="Variable value"
             disabled={readOnly}
-            className={cn(
-              'text-sm pr-8',
-              !isValueValid && 'border-amber-300 dark:border-amber-600'
-            )}
+            className="text-sm pr-16"
           />
-          {variable.isSecret && (
+          <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
+            {/* Show/hide secret value button - only for secrets */}
+            {variable.isSecret && (
+              <button
+                type="button"
+                onClick={() => toggleSecret(variable.key)}
+                className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded transition-colors hover:bg-slate-50 dark:hover:bg-slate-800"
+                title={showSecrets[variable.key] ? 'Hide value' : 'Show value'}
+              >
+                {showSecrets[variable.key] ? (
+                  <EyeSlashIcon className="w-4 h-4" />
+                ) : (
+                  <EyeIcon className="w-4 h-4" />
+                )}
+              </button>
+            )}
+            {/* Secret toggle button */}
             <button
               type="button"
-              onClick={() => toggleSecret(variable.key)}
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+              onClick={() => updateVariable(variable.key, { isSecret: !variable.isSecret, variableType: !variable.isSecret ? 'secret' : 'string' })}
+              disabled={readOnly}
+              className={`p-1 rounded transition-colors ${
+                variable.isSecret
+                  ? 'text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20'
+                  : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50 dark:hover:text-slate-300 dark:hover:bg-slate-800'
+              }`}
+              title={variable.isSecret ? 'Mark as string' : 'Mark as secret'}
             >
-              {showSecrets[variable.key] ? (
-                <EyeSlashIcon className="w-4 h-4" />
-              ) : (
-                <EyeIcon className="w-4 h-4" />
-              )}
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                {variable.isSecret ? (
+                  <path d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M12,7C13.4,7 14.8,8.6 14.8,10V11H16V16H8V11H9.2V10C9.2,8.6 10.6,7 12,7M12,8.2C11.2,8.2 10.4,8.7 10.4,10V11H13.6V10C13.6,8.7 12.8,8.2 12,8.2Z" />
+                ) : (
+                  <path d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M12,7C13.4,7 14.8,8.6 14.8,10V11H16V16H8V11H9.2V10C9.2,8.6 10.6,7 12,7M12,8.2C11.2,8.2 10.4,8.7 10.4,10V11H13.6V10C13.6,8.7 12.8,8.2 12,8.2Z" opacity="0.3" />
+                )}
+              </svg>
             </button>
-          )}
-        </div>
-
-        {/* Variable Type */}
-        <div className="col-span-2">
-          <Select
-            value={variable.variableType}
-            onChange={(value) => updateVariable(variable.key, { variableType: value as VariableType })}
-            options={VARIABLE_TYPES.map(type => ({ value: type, label: VARIABLE_TYPE_LABELS[type] }))}
-            disabled={readOnly}
-            size="sm"
-          />
-        </div>
-
-        {/* Secret Toggle */}
-        <div className="col-span-1 flex items-center justify-center">
-          <input
-            type="checkbox"
-            checked={variable.isSecret}
-            onChange={(e) => updateVariable(variable.key, { isSecret: e.target.checked })}
-            disabled={readOnly}
-            className="w-4 h-4 text-primary-600 border-slate-300 rounded focus:ring-primary-500"
-            title="Mark as secret"
-          />
-        </div>
-
-        {/* Status Indicators */}
-        <div className="col-span-1 flex items-center justify-center">
-          {!isValueValid ? (
-            <ExclamationTriangleIcon className="w-4 h-4 text-orange-500" title="Invalid value for type" />
-          ) : (
-            <CheckCircleIcon className="w-4 h-4 text-green-500" title="Valid" />
-          )}
+          </div>
         </div>
 
         {/* Actions */}
@@ -224,18 +202,18 @@ export const EnvironmentVariableEditor: React.FC<EnvironmentVariableEditorProps>
     <Card className={className}>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <div>
+          <div className="flex items-center space-x-4">
             <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-              Environment Variables
+              Variables
             </h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <span className="text-sm text-slate-500 dark:text-slate-400">
               {variablesList.length} variable{variablesList.length !== 1 ? 's' : ''}
-            </p>
+            </span>
           </div>
         </div>
         
         {/* Filters */}
-        <div className="flex space-x-3 mt-4">
+        <div className="flex space-x-3 mt-3">
           <div className="flex-1">
             <Input
               placeholder="Search variables..."
@@ -244,12 +222,12 @@ export const EnvironmentVariableEditor: React.FC<EnvironmentVariableEditorProps>
               className="text-sm"
             />
           </div>
-          <div className="w-40">
+          <div className="w-32">
             <Select
               value={selectedType}
               onChange={(value) => setSelectedType(value as VariableType | 'all')}
               options={[
-                { value: 'all', label: 'All Types' },
+                { value: 'all', label: 'All' },
                 ...VARIABLE_TYPES.map(type => ({ value: type, label: VARIABLE_TYPE_LABELS[type] }))
               ]}
               size="sm"
@@ -262,12 +240,8 @@ export const EnvironmentVariableEditor: React.FC<EnvironmentVariableEditorProps>
         <div className="space-y-4">
           {/* Header Row */}
           <div className="grid grid-cols-12 gap-3 px-3 py-2 text-xs font-medium text-slate-500 dark:text-slate-400 border-b border-slate-200/60 dark:border-slate-600/60">
-            <div className="col-span-1">Type</div>
-            <div className="col-span-3">Name</div>
-            <div className="col-span-3">Value</div>
-            <div className="col-span-2">Variable Type</div>
-            <div className="col-span-1">Secret</div>
-            <div className="col-span-1">Status</div>
+            <div className="col-span-5">Name</div>
+            <div className="col-span-6">Value</div>
             <div className="col-span-1">Actions</div>
           </div>
 
@@ -290,11 +264,7 @@ export const EnvironmentVariableEditor: React.FC<EnvironmentVariableEditorProps>
           {!readOnly && (
             <div className="border-t border-slate-200/60 dark:border-slate-600/60 pt-4">
               <div className="grid grid-cols-12 gap-3 p-3 rounded-lg bg-slate-50/50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-600/60">
-                <div className="col-span-1 flex items-center">
-                  <span className="text-xs text-slate-500 dark:text-slate-400">New</span>
-                </div>
-
-                <div className="col-span-3">
+                <div className="col-span-5">
                   <Input
                     value={newVariable.key}
                     onChange={(e) => setNewVariable(prev => ({ ...prev, key: e.target.value }))}
@@ -303,39 +273,54 @@ export const EnvironmentVariableEditor: React.FC<EnvironmentVariableEditorProps>
                   />
                 </div>
 
-                <div className="col-span-3">
+                <div className="col-span-6 relative">
                   <Input
                     type={newVariable.isSecret ? 'password' : 'text'}
                     value={newVariable.value}
                     onChange={(e) => setNewVariable(prev => ({ ...prev, value: e.target.value }))}
                     placeholder="Variable value"
-                    className="text-sm"
+                    className="text-sm pr-16"
                   />
-                </div>
-
-                <div className="col-span-2">
-                  <Select
-                    value={newVariable.variableType}
-                    onChange={(value) => setNewVariable(prev => ({ ...prev, variableType: value as VariableType }))}
-                    options={VARIABLE_TYPES.map(type => ({ value: type, label: VARIABLE_TYPE_LABELS[type] }))}
-                    size="sm"
-                  />
-                </div>
-
-                <div className="col-span-1 flex items-center justify-center">
-                  <input
-                    type="checkbox"
-                    checked={newVariable.isSecret}
-                    onChange={(e) => setNewVariable(prev => ({ ...prev, isSecret: e.target.checked }))}
-                    className="w-4 h-4 text-primary-600 border-slate-300 rounded focus:ring-primary-500"
-                    title="Mark as secret"
-                  />
-                </div>
-
-                <div className="col-span-1 flex items-center justify-center">
-                  <span className="text-xs text-slate-400">
-                    {isValidValue(newVariable.value, newVariable.variableType) ? '✓' : '!'}
-                  </span>
+                  <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
+                    {/* Show/hide secret value button - only for secrets */}
+                    {newVariable.isSecret && (
+                      <button
+                        type="button"
+                        onClick={() => setShowSecrets(prev => ({ ...prev, ['new-variable']: !prev['new-variable'] }))}
+                        className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded transition-colors hover:bg-slate-50 dark:hover:bg-slate-800"
+                        title={showSecrets['new-variable'] ? 'Hide value' : 'Show value'}
+                      >
+                        {showSecrets['new-variable'] ? (
+                          <EyeSlashIcon className="w-4 h-4" />
+                        ) : (
+                          <EyeIcon className="w-4 h-4" />
+                        )}
+                      </button>
+                    )}
+                    {/* Secret toggle button */}
+                    <button
+                      type="button"
+                      onClick={() => setNewVariable(prev => ({ 
+                        ...prev, 
+                        isSecret: !prev.isSecret, 
+                        variableType: !prev.isSecret ? 'secret' : 'string' 
+                      }))}
+                      className={`p-1 rounded transition-colors ${
+                        newVariable.isSecret
+                          ? 'text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20'
+                          : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50 dark:hover:text-slate-300 dark:hover:bg-slate-800'
+                      }`}
+                      title={newVariable.isSecret ? 'Mark as string' : 'Mark as secret'}
+                    >
+                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                        {newVariable.isSecret ? (
+                          <path d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M12,7C13.4,7 14.8,8.6 14.8,10V11H16V16H8V11H9.2V10C9.2,8.6 10.6,7 12,7M12,8.2C11.2,8.2 10.4,8.7 10.4,10V11H13.6V10C13.6,8.7 12.8,8.2 12,8.2Z" />
+                        ) : (
+                          <path d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M12,7C13.4,7 14.8,8.6 14.8,10V11H16V16H8V11H9.2V10C9.2,8.6 10.6,7 12,7M12,8.2C11.2,8.2 10.4,8.7 10.4,10V11H13.6V10C13.6,8.7 12.8,8.2 12,8.2Z" opacity="0.3" />
+                        )}
+                      </svg>
+                    </button>
+                  </div>
                 </div>
 
                 <div className="col-span-1 flex items-center justify-center">

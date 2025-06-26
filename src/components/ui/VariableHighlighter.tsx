@@ -6,6 +6,7 @@ export interface VariableHighlighterProps {
   onChange: (value: string) => void;
   placeholder?: string;
   className?: string;
+  style?: React.CSSProperties;
   variables?: Record<string, string>;
   multiline?: boolean;
   rows?: number;
@@ -24,6 +25,7 @@ export const VariableHighlighter: React.FC<VariableHighlighterProps> = ({
   onChange,
   placeholder,
   className,
+  style = {},
   variables = {},
   multiline = false,
   rows = 3,
@@ -56,32 +58,32 @@ export const VariableHighlighter: React.FC<VariableHighlighterProps> = ({
   const createHighlightedHtml = (text: string): string => {
     const variableMatches = extractVariables(text);
     if (variableMatches.length === 0) {
-      return text.replace(/\n/g, '<br>').replace(/ /g, '&nbsp;');
+      return text.replace(/\n/g, '<br>');
     }
 
     let result = '';
     let lastIndex = 0;
 
     variableMatches.forEach((match) => {
-      // Add text before the variable
+      // Add text before the variable (keep spaces as-is since we use pre-wrap)
       const beforeText = text.slice(lastIndex, match.start);
-      result += beforeText.replace(/\n/g, '<br>').replace(/ /g, '&nbsp;');
+      result += beforeText.replace(/\n/g, '<br>');
 
       // Add highlighted variable
       const variableText = text.slice(match.start, match.end);
       const isResolved = match.value !== undefined;
       const highlightClass = isResolved 
-        ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-700'
-        : 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 border border-orange-200 dark:border-orange-700';
+        ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300'
+        : 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300';
       
-      result += `<span class="variable-highlight ${highlightClass} px-1 rounded text-sm font-medium" data-variable="${match.variable}" data-value="${match.value || ''}">${variableText.replace(/ /g, '&nbsp;')}</span>`;
+      result += `<span class="variable-highlight ${highlightClass}" data-variable="${match.variable}" data-value="${match.value || ''}">${variableText}</span>`;
 
       lastIndex = match.end;
     });
 
-    // Add remaining text
+    // Add remaining text (keep spaces as-is since we use pre-wrap)
     const remainingText = text.slice(lastIndex);
-    result += remainingText.replace(/\n/g, '<br>').replace(/ /g, '&nbsp;');
+    result += remainingText.replace(/\n/g, '<br>');
 
     return result;
   };
@@ -140,23 +142,51 @@ export const VariableHighlighter: React.FC<VariableHighlighterProps> = ({
   }, [value, variables]);
 
   const inputClasses = cn(
-    'w-full bg-transparent resize-none outline-none text-transparent caret-slate-900 dark:caret-slate-100',
-    'relative z-10',
+    'w-full bg-transparent resize-none outline-none text-transparent',
+    'relative z-10 border-0 variable-highlighter-input',
     className
   );
 
   const highlightClasses = cn(
     'absolute inset-0 pointer-events-none overflow-hidden whitespace-pre-wrap break-words',
-    'text-slate-900 dark:text-slate-100 leading-normal',
-    'px-3 py-2 font-mono text-sm'
+    'text-slate-900 dark:text-slate-100 border-0',
+    'box-border'
   );
 
   const containerClasses = cn(
     'relative w-full border border-slate-300 dark:border-slate-600 rounded-md shadow-sm',
     'focus-within:ring-2 focus-within:ring-primary-500 focus-within:border-primary-500',
     'bg-white dark:bg-slate-800',
+    'variable-highlighter-container',
     disabled && 'opacity-50 cursor-not-allowed'
   );
+
+  // Force exact character measurements by using system monospace
+  const sharedStyle = {
+    fontFamily: 'ui-monospace, Menlo, Monaco, "Cascadia Code", "Segoe UI Mono", "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace", "Source Code Pro", "Fira Mono", "Droid Sans Mono", "Courier New", monospace',
+    fontSize: '14px',
+    lineHeight: '1.42857',
+    padding: '8px 12px',
+    margin: '0',
+    border: '0',
+    outline: '0',
+    boxSizing: 'border-box' as const,
+    fontFeatureSettings: '"liga" 0, "kern" 0, "calt" 0',
+    fontVariantLigatures: 'none',
+    letterSpacing: '0',
+    wordSpacing: '0',
+    textIndent: '0',
+    textAlign: 'left' as const,
+    fontWeight: '400',
+    fontStyle: 'normal',
+    textDecoration: 'none',
+    textTransform: 'none' as const,
+    textRendering: 'optimizeSpeed' as const,
+    fontKerning: 'none' as const,
+    whiteSpace: multiline ? 'pre-wrap' as const : 'nowrap' as const,
+    overflow: 'hidden',
+    ...style,
+  };
 
   const commonProps = {
     ref: inputRef as any,
@@ -166,13 +196,9 @@ export const VariableHighlighter: React.FC<VariableHighlighterProps> = ({
     placeholder,
     disabled,
     className: inputClasses,
-    style: {
-      fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace',
-      fontSize: '14px',
-      lineHeight: '1.5',
-      padding: '8px 12px',
-    },
+    style: sharedStyle,
   };
+
 
   return (
     <>
@@ -181,12 +207,7 @@ export const VariableHighlighter: React.FC<VariableHighlighterProps> = ({
         <div
           ref={highlightRef}
           className={highlightClasses}
-          style={{
-            fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace',
-            fontSize: '14px',
-            lineHeight: '1.5',
-            padding: '8px 12px',
-          }}
+          style={sharedStyle}
           dangerouslySetInnerHTML={{ __html: createHighlightedHtml(value) }}
         />
 

@@ -7,7 +7,6 @@ import {
   CheckCircleIcon
 } from '@heroicons/react/24/outline';
 import { Button, Card, CardHeader, CardBody } from '../ui';
-import { EnvironmentSelector } from './EnvironmentSelector';
 import { EnvironmentEditor } from './EnvironmentEditor';
 import { EnvironmentApiService } from '../../services/environment-api';
 import { cn } from '../../utils/cn';
@@ -201,16 +200,6 @@ export const EnvironmentManagement: React.FC<EnvironmentManagementProps> = ({
         </div>
         
         <div className="flex items-center space-x-3">
-          <EnvironmentSelector
-            environments={environments}
-            activeEnvironmentId={activeEnvironmentId}
-            onEnvironmentChange={handleEnvironmentChange}
-            onCreateEnvironment={handleCreateEnvironment}
-            onEditEnvironment={handleEditEnvironment}
-            onManageEnvironments={() => setActiveTab('overview')}
-            className="min-w-[250px]"
-          />
-          
           <Button
             variant="primary"
             onClick={handleCreateEnvironment}
@@ -353,17 +342,6 @@ export const EnvironmentManagement: React.FC<EnvironmentManagementProps> = ({
                         <DocumentDuplicateIcon className="w-3 h-3" />
                         <span>Duplicate</span>
                       </Button>
-
-                      {!isActive && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleEnvironmentChange(environment.id)}
-                          className="text-primary-600 hover:text-primary-700"
-                        >
-                          Activate
-                        </Button>
-                      )}
                     </div>
                   </div>
                 </CardBody>
