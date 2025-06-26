@@ -16,7 +16,7 @@ export interface HttpRequest {
 export type RequestBody = 
   | { type: 'none' }
   | { type: 'raw'; content: string; contentType: string }
-  | { type: 'json'; data: any }
+  | { type: 'json'; data: any; content: string }
   | { type: 'formData'; fields: Record<string, string> }
   | { type: 'formUrlEncoded'; fields: Record<string, string> }
   | { type: 'binary'; data: number[]; contentType: string };
@@ -121,8 +121,21 @@ export const CONTENT_TYPES = [
   'text/html',
   'application/x-www-form-urlencoded',
   'multipart/form-data',
-  'application/octet-stream'
+  'application/octet-stream',
+  'application/javascript',
+  'text/css',
+  'text/csv',
+  'image/jpeg',
+  'image/png',
+  'image/gif'
 ] as const;
+
+export const BODY_TYPE_CONTENT_TYPE_MAP: Record<string, string> = {
+  'json': 'application/json',
+  'formData': 'multipart/form-data',
+  'formUrlEncoded': 'application/x-www-form-urlencoded',
+  'raw': 'text/plain'
+};
 
 export const HTTP_STATUS_CATEGORIES = {
   INFORMATIONAL: { min: 100, max: 199, color: 'blue' },
@@ -196,5 +209,85 @@ export function formatResponseSize(bytes: number): string {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   } else {
     return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+  }
+}
+
+// URL enhancement utilities
+export function enhanceUrl(url: string): string {
+  if (!url.trim()) return url;
+  
+  // Already has protocol
+  if (url.match(/^https?:\/\//)) return url;
+  
+  // Local development (use HTTP)
+  if (url.match(/^(localhost|127\.0\.0\.1|192\.168\.|10\.|172\.)/)) {
+    return `http://${url}`;
+  }
+  
+  // Everything else gets HTTPS
+  return `https://${url}`;
+}
+
+export function isValidUrl(url: string): boolean {
+  try {
+    new URL(enhanceUrl(url));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// Body validation utilities
+export function validateJsonBody(content: string): { isValid: boolean; error?: string } {
+  if (!content.trim()) {
+    return { isValid: true };
+  }
+  
+  try {
+    JSON.parse(content);
+    return { isValid: true };
+  } catch (error) {
+    return { 
+      isValid: false, 
+      error: error instanceof Error ? error.message : 'Invalid JSON format'
+    };
+  }
+}
+
+export function getContentTypeForBody(body: RequestBody): string {
+  switch (body.type) {
+    case 'json':
+      return 'application/json';
+    case 'formData':
+      return 'multipart/form-data';
+    case 'formUrlEncoded':
+      return 'application/x-www-form-urlencoded';
+    case 'raw':
+      return body.contentType || 'text/plain';
+    case 'binary':
+      return body.contentType || 'application/octet-stream';
+    default:
+      return 'text/plain';
+  }
+}
+
+export function bodyToString(body: RequestBody): string {
+  switch (body.type) {
+    case 'none':
+      return '';
+    case 'raw':
+      return body.content;
+    case 'json':
+      // Use the raw content if available, otherwise stringify the data
+      return body.content || JSON.stringify(body.data);
+    case 'formData':
+    case 'formUrlEncoded':
+      return Object.entries(body.fields)
+        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+        .join('&');
+    case 'binary':
+      return '[Binary Data]';
+    default:
+      return '';
   }
 }

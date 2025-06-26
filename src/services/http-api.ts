@@ -88,7 +88,8 @@ export class HttpApiService {
         request.headers['Content-Type'] = 'application/json';
         request.body = {
           type: 'json',
-          data: { message: 'Hello from Postgirl!' }
+          data: { message: 'Hello from Postgirl!' },
+          content: '{"message": "Hello from Postgirl!"}'
         };
         break;
         

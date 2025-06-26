@@ -1,22 +1,52 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { PlayIcon, ClockIcon, CheckCircleIcon, XCircleIcon, CogIcon } from '@heroicons/react/24/outline';
-import { Button, Input, Card, CardHeader, CardBody, Select } from '../ui';
+import { Button, Card, CardHeader, CardBody, Select, VariableHighlighter } from '../ui';
+import { RequestBodyEditor } from './RequestBodyEditor';
 import { EnvironmentSelector } from '../environment/EnvironmentSelector';
 import { EnvironmentEditor } from '../environment/EnvironmentEditor';
 import { HttpApiService } from '../../services/http-api';
 import { EnvironmentApiService } from '../../services/environment-api';
 import { CollectionApiService } from '../../services/collection-api';
 import { useWorkspaceStore } from '../../stores/workspace-store';
-import type { HttpRequest, HttpResponse, HttpError, HttpMethod } from '../../types/http';
+import type { HttpRequest, HttpResponse, HttpError, HttpMethod, RequestBody } from '../../types/http';
 import type { Environment } from '../../types/environment';
 import type { Request } from '../../types/collection';
-import { HTTP_METHODS, formatResponseTime, getStatusColor } from '../../types/http';
+import { HTTP_METHODS, formatResponseTime, getStatusColor, enhanceUrl, getContentTypeForBody, bodyToString } from '../../types/http';
 
 interface HttpRequestFormProps {
   initialRequest?: Request;
   onResponse?: (response: HttpResponse) => void;
   onError?: (error: HttpError) => void;
 }
+
+// Helper function to convert string body to RequestBody object
+const convertStringToRequestBody = (bodyString: string, bodyType: string): RequestBody => {
+  switch (bodyType) {
+    case 'json':
+      try {
+        const data = JSON.parse(bodyString);
+        return { type: 'json', data, content: bodyString };
+      } catch {
+        return { type: 'json', data: {}, content: bodyString };
+      }
+    case 'form':
+      // Parse form data from string
+      const fields: Record<string, string> = {};
+      if (bodyString) {
+        const pairs = bodyString.split('&');
+        for (const pair of pairs) {
+          const [key, value] = pair.split('=');
+          if (key) {
+            fields[decodeURIComponent(key)] = decodeURIComponent(value || '');
+          }
+        }
+      }
+      return { type: 'formUrlEncoded', fields };
+    case 'raw':
+    default:
+      return { type: 'raw', content: bodyString, contentType: 'text/plain' };
+  }
+};
 
 export const HttpRequestForm: React.FC<HttpRequestFormProps> = ({
   initialRequest,
@@ -32,7 +62,7 @@ export const HttpRequestForm: React.FC<HttpRequestFormProps> = ({
         method: initialRequest.method as HttpMethod,
         url: initialRequest.url,
         headers: initialRequest.headers ? JSON.parse(initialRequest.headers) : {},
-        body: initialRequest.body ? { type: 'raw' as const, content: initialRequest.body, contentType: 'text/plain' } : { type: 'none' as const },
+        body: initialRequest.body ? convertStringToRequestBody(initialRequest.body, initialRequest.body_type) : { type: 'none' as const },
         followRedirects: initialRequest.follow_redirects ?? true,
         timeoutMs: initialRequest.timeout_ms ?? 30000,
         createdAt: initialRequest.created_at,
@@ -91,8 +121,8 @@ export const HttpRequestForm: React.FC<HttpRequestFormProps> = ({
         method: updatedRequest.method,
         url: updatedRequest.url,
         headers: updatedRequest.headers,
-        body: updatedRequest.body?.type === 'raw' ? updatedRequest.body.content : undefined,
-        body_type: initialRequest.body_type, // Preserve original body_type
+        body: bodyToString(updatedRequest.body || { type: 'none' }),
+        body_type: updatedRequest.body?.type || 'none',
         follow_redirects: updatedRequest.followRedirects,
         timeout_ms: updatedRequest.timeoutMs
       });
@@ -111,7 +141,7 @@ export const HttpRequestForm: React.FC<HttpRequestFormProps> = ({
         method: initialRequest.method as HttpMethod,
         url: initialRequest.url,
         headers: initialRequest.headers ? JSON.parse(initialRequest.headers) : {},
-        body: initialRequest.body ? { type: 'raw' as const, content: initialRequest.body, contentType: 'text/plain' } : { type: 'none' as const },
+        body: initialRequest.body ? convertStringToRequestBody(initialRequest.body, initialRequest.body_type) : { type: 'none' as const },
         followRedirects: initialRequest.follow_redirects ?? true,
         timeoutMs: initialRequest.timeout_ms ?? 30000,
         createdAt: initialRequest.created_at,
@@ -246,11 +276,14 @@ export const HttpRequestForm: React.FC<HttpRequestFormProps> = ({
       // Get environment variables for substitution
       const environmentVariables = getActiveEnvironmentVariables();
       
-      // Substitute variables in URL and headers
+      // Substitute variables and enhance URL
       let processedRequest = { ...request };
       
+      // Enhance URL with protocol if needed
+      let enhancedUrl = enhanceUrl(request.url);
+      
       if (Object.keys(environmentVariables).length > 0) {
-        processedRequest.url = await EnvironmentApiService.substituteVariables(request.url, environmentVariables);
+        enhancedUrl = await EnvironmentApiService.substituteVariables(enhancedUrl, environmentVariables);
         
         // Substitute variables in headers
         const processedHeaders: Record<string, string> = {};
@@ -260,6 +293,54 @@ export const HttpRequestForm: React.FC<HttpRequestFormProps> = ({
           processedHeaders[processedKey] = processedValue;
         }
         processedRequest.headers = processedHeaders;
+        
+        // Substitute variables in body if it's raw or JSON
+        if (processedRequest.body) {
+          if (processedRequest.body.type === 'raw') {
+            processedRequest.body = {
+              ...processedRequest.body,
+              content: await EnvironmentApiService.substituteVariables(processedRequest.body.content, environmentVariables)
+            };
+          } else if (processedRequest.body.type === 'json') {
+            // Substitute variables in the raw content
+            const substitutedContent = await EnvironmentApiService.substituteVariables(processedRequest.body.content, environmentVariables);
+            try {
+              processedRequest.body = {
+                ...processedRequest.body,
+                content: substitutedContent,
+                data: JSON.parse(substitutedContent)
+              };
+            } catch {
+              // If substitution breaks JSON, keep original content but try to parse data
+              processedRequest.body = {
+                ...processedRequest.body,
+                content: substitutedContent
+              };
+            }
+          } else if (processedRequest.body.type === 'formData' || processedRequest.body.type === 'formUrlEncoded') {
+            const processedFields: Record<string, string> = {};
+            for (const [key, value] of Object.entries(processedRequest.body.fields)) {
+              const processedKey = await EnvironmentApiService.substituteVariables(key, environmentVariables);
+              const processedValue = await EnvironmentApiService.substituteVariables(value, environmentVariables);
+              processedFields[processedKey] = processedValue;
+            }
+            processedRequest.body = {
+              ...processedRequest.body,
+              fields: processedFields
+            };
+          }
+        }
+      }
+      
+      processedRequest.url = enhancedUrl;
+      
+      // Automatically set Content-Type header based on body type
+      if (processedRequest.body && processedRequest.body.type !== 'none') {
+        const contentType = getContentTypeForBody(processedRequest.body);
+        processedRequest.headers = {
+          ...processedRequest.headers,
+          'Content-Type': contentType
+        };
       }
 
       const result = await HttpApiService.executeRequest(processedRequest);
@@ -420,12 +501,15 @@ export const HttpRequestForm: React.FC<HttpRequestFormProps> = ({
                 className="min-w-[100px]"
               />
               
-              <Input
-                placeholder="https://api.example.com/endpoint"
-                value={request.url}
-                onChange={(e) => setRequest(prev => ({ ...prev, url: e.target.value }))}
-                className="flex-1"
-              />
+              <div className="flex-1">
+                <VariableHighlighter
+                  value={request.url}
+                  onChange={(url) => setRequest(prev => ({ ...prev, url }))}
+                  variables={getActiveEnvironmentVariables()}
+                  placeholder="api.example.com/endpoint"
+                  className="text-sm"
+                />
+              </div>
               
               <Button
                 variant="primary"
@@ -467,18 +551,24 @@ export const HttpRequestForm: React.FC<HttpRequestFormProps> = ({
                 ))}
                 
                 <div className="flex items-center space-x-2">
-                  <Input
-                    placeholder="Header name"
-                    value={newHeaderKey}
-                    onChange={(e) => setNewHeaderKey(e.target.value)}
-                    className="min-w-[120px]"
-                  />
-                  <Input
-                    placeholder="Header value"
-                    value={newHeaderValue}
-                    onChange={(e) => setNewHeaderValue(e.target.value)}
-                    className="flex-1"
-                  />
+                  <div className="min-w-[120px]">
+                    <VariableHighlighter
+                      value={newHeaderKey}
+                      onChange={setNewHeaderKey}
+                      variables={getActiveEnvironmentVariables()}
+                      placeholder="Header name"
+                      className="text-sm"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <VariableHighlighter
+                      value={newHeaderValue}
+                      onChange={setNewHeaderValue}
+                      variables={getActiveEnvironmentVariables()}
+                      placeholder="Header value"
+                      className="text-sm"
+                    />
+                  </div>
                   <Button
                     variant="secondary"
                     size="sm"
@@ -489,6 +579,16 @@ export const HttpRequestForm: React.FC<HttpRequestFormProps> = ({
                   </Button>
                 </div>
               </div>
+            </div>
+
+            {/* Request Body */}
+            <div>
+              <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Request Body</h4>
+              <RequestBodyEditor
+                body={request.body || { type: 'none' }}
+                onChange={(body) => setRequest(prev => ({ ...prev, body }))}
+                variables={getActiveEnvironmentVariables()}
+              />
             </div>
 
             {/* Environment Variables Info */}
