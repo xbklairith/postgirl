@@ -140,7 +140,7 @@
   }
 
   .header {
-    @apply glass-card mb-6 flex items-center justify-between;
+    @apply glass-card flex items-center justify-between;
   }
 
   /* Loading states */

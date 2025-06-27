@@ -6,7 +6,7 @@ import {
   DocumentDuplicateIcon,
   TrashIcon
 } from '@heroicons/react/24/outline';
-import { Button, Input, Card, CardHeader, CardBody, Modal } from '../ui';
+import { Button, Input, Modal } from '../ui';
 import { EnvironmentVariableEditor } from './EnvironmentVariableEditor';
 import type { 
   Environment, 

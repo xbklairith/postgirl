@@ -1,11 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button, Input, Modal } from "./components/ui";
 import { WorkspaceDashboard } from "./components/workspace";
 import { HttpRequestForm } from "./components/http";
 import { EnvironmentManagement } from "./components/environment/EnvironmentManagement";
 import { CollectionBrowser } from "./components/collection";
+import { TabBar } from "./components/tabs/TabBar";
 import { useWorkspaceInitialization, useWorkspaceStore } from "./stores/workspace-store";
+import { useRequestTabStore } from "./stores/request-tab-store";
+import { tabManager } from "./services/tab-manager";
 import { useTheme } from "./hooks/use-theme";
+import { useTabShortcuts } from "./hooks/use-tab-shortcuts";
 
 function App() {
   const [currentView, setCurrentView] = useState<'workspaces' | 'api-testing' | 'environments'>('api-testing');
@@ -14,12 +18,22 @@ function App() {
   const [requestCollectionId, setRequestCollectionId] = useState<string | null>(null);
   const [requestName, setRequestName] = useState('');
   const [selectedCollectionId, setSelectedCollectionId] = useState<string | null>(null);
-  const [selectedRequest, setSelectedRequest] = useState<any>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   
   // Initialize workspace database and get active workspace
   useWorkspaceInitialization();
   const { activeWorkspace } = useWorkspaceStore();
+  
+  // Get tab state
+  const { tabs } = useRequestTabStore();
+  
+  // Initialize tab manager and keyboard shortcuts
+  useEffect(() => {
+    tabManager.initialize();
+  }, []);
+
+  // Enable keyboard shortcuts for tab operations
+  useTabShortcuts();
 
 
   const handleCreateRequest = async () => {
@@ -47,6 +61,9 @@ function App() {
       // Trigger collection refresh to show the new request
       setRefreshTrigger(prev => prev + 1);
       
+      // Open the new request in a tab
+      tabManager.openRequestInTab(newRequest, true);
+      
       // Switch to API testing view to edit the new request
       setCurrentView('api-testing');
     } catch (error) {
@@ -57,9 +74,9 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen py-4 px-2">
+    <div className="h-screen flex flex-col py-4 px-2">
       {/* Header */}
-      <div className="header">
+      <div className="header flex-shrink-0">
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-secondary-500"></div>
@@ -98,7 +115,7 @@ function App() {
       </div>
 
       {/* Main Content */}
-      <div className="w-full space-y-6">
+      <div className="flex-1 flex flex-col min-h-0 mt-6">
         {currentView === 'workspaces' && (
           <WorkspaceDashboard 
             onWorkspaceSelect={() => {
@@ -108,26 +125,23 @@ function App() {
         )}
 
         {currentView === 'api-testing' && (
-          <div id="api-testing-view" className="h-[calc(100vh-120px)]" data-testid="api-testing-container">
+          <div id="api-testing-view" className="flex-1 flex flex-col min-h-0" data-testid="api-testing-container">
             {activeWorkspace ? (
-              <div id="api-testing-main" className="flex h-full bg-white dark:bg-slate-900" data-layout="two-column">
+              <div id="api-testing-main" className="flex-1 flex min-h-0 min-w-0 w-full max-w-full bg-white dark:bg-slate-900" data-layout="two-column">
                 {/* Collections Sidebar */}
-                <div id="collections-sidebar" className="w-80 border-r border-slate-200/60 dark:border-slate-600/60 bg-slate-50/30 dark:bg-slate-800/30" data-testid="collections-sidebar">
+                <div id="collections-sidebar" className="w-80 flex-shrink-0 border-r border-slate-200/60 dark:border-slate-600/60 bg-slate-50/30 dark:bg-slate-800/30" data-testid="collections-sidebar">
                   <CollectionBrowser 
                     workspaceId={activeWorkspace.id}
                     selectedCollectionId={selectedCollectionId}
-                    selectedRequest={selectedRequest}
                     onCollectionSelect={(collectionId) => {
                       setSelectedCollectionId(collectionId);
-                      setSelectedRequest(null); // Clear selected request when changing collections
                     }}
-                    onRequestSelect={(request) => {
-                      console.log('App.tsx: Request selected:', request);
-                      setSelectedRequest(request);
-                      // Don't clear collection selection - keep it for context
+                    onRequestSelect={() => {
+                      console.log('App.tsx: Request selected (tab system will handle)');
+                      // Tab system now handles request selection
                     }}
-                    onRequestEdit={(request) => {
-                      setSelectedRequest(request);
+                    onRequestEdit={() => {
+                      // Tab system now handles request editing
                     }}
                     onRequestCreate={(collectionId) => {
                       console.log('App.tsx onRequestCreate called with collectionId:', collectionId);
@@ -140,51 +154,58 @@ function App() {
                   />
                 </div>
                 
-                {/* Request Crafting Main Area */}
-                <div id="request-crafting-area" className="flex-1 flex flex-col bg-white dark:bg-slate-900" data-testid="main-content-area">
-                  {selectedRequest ? (
-                    // HTTP Request Form for editing/testing a specific request
-                    <div id="request-editor" className="flex-1 p-6 overflow-auto" data-testid="request-editor" data-request-id={selectedRequest.id}>
-                      <HttpRequestForm 
-                        initialRequest={selectedRequest}
-                        onResponse={() => {
-                          // Handle response
-                        }}
-                        onError={() => {
-                          // Handle error  
-                        }}
-                      />
-                    </div>
-                  ) : selectedCollectionId ? (
-                    // Collection selected - show requests area
-                    <div id="collection-requests" data-testid="collection-requests" data-collection-id={selectedCollectionId}>
-                      <div className="p-6 border-b border-slate-200/60 dark:border-slate-600/60 bg-white dark:bg-slate-900">
-                        <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
-                          Collection Selected
-                        </h2>
-                        <p className="text-slate-600 dark:text-slate-400 mt-1">
-                          RequestList component removed as requested
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    // Empty state - no collection selected
-                    <div id="empty-state" className="flex-1 flex items-center justify-center p-8" data-testid="select-collection-state">
-                      <div className="text-center text-slate-500 dark:text-slate-400 max-w-md">
-                        <div className="mb-6">
-                          <svg className="w-20 h-20 mx-auto opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2V5a2 2 0 012-2h14a2 2 0 012 2v2a2 2 0 00-2 2z" />
-                          </svg>
+                {/* Tab-based Request Area */}
+                <div id="request-crafting-area" className="flex-1 flex flex-col min-h-0 min-w-0 bg-white dark:bg-slate-900" data-testid="main-content-area">
+                  {/* Tab Bar */}
+                  <div className="flex-shrink-0">
+                    <TabBar />
+                  </div>
+                  
+                  {/* Request Form or Empty State */}
+                  <div className="flex-1 min-h-0 min-w-0 overflow-auto">
+                    {tabs.length > 0 ? (
+                      <div className="h-full w-full">
+                        <div className="p-6 h-full w-full max-w-full">
+                          <div className="max-w-full overflow-hidden">
+                            <HttpRequestForm 
+                              onResponse={() => {
+                                // Handle response
+                              }}
+                              onError={() => {
+                                // Handle error  
+                              }}
+                            />
+                          </div>
                         </div>
-                        <h3 id="empty-state-title" className="text-xl font-semibold mb-3 text-slate-700 dark:text-slate-300">Select a Collection</h3>
-                        <p id="empty-state-description" className="text-sm leading-relaxed">Choose a collection from the sidebar to view its requests and start testing your APIs</p>
                       </div>
-                    </div>
-                  )}
+                    ) : (
+                      // Empty state - no tabs open
+                      <div id="empty-state" className="h-full flex items-center justify-center p-8" data-testid="no-tabs-state">
+                        <div className="text-center text-slate-500 dark:text-slate-400 max-w-md">
+                          <div className="mb-6">
+                            <svg className="w-20 h-20 mx-auto opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                          </div>
+                          <h3 id="empty-state-title" className="text-xl font-semibold mb-3 text-slate-700 dark:text-slate-300">No Request Tabs Open</h3>
+                          <p id="empty-state-description" className="text-sm leading-relaxed mb-4">
+                            Open a request from the collection sidebar or create a new tab to start testing your APIs
+                          </p>
+                          <Button
+                            variant="primary"
+                            onClick={() => tabManager.openBlankTab(true)}
+                            className="mt-4"
+                          >
+                            New Tab
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             ) : (
-              <div className="flex items-center justify-center h-full">
+              <div className="flex-1 flex items-center justify-center">
                 <div className="text-center text-slate-500 dark:text-slate-400">
                   <div className="mb-4">
                     <svg className="w-16 h-16 mx-auto opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -206,7 +227,7 @@ function App() {
         )}
 
         {currentView === 'environments' && (
-          <div className="h-[calc(100vh-200px)] p-6">
+          <div className="flex-1 flex flex-col min-h-0 p-6">
             {activeWorkspace ? (
               <EnvironmentManagement 
                 workspaceId={activeWorkspace.id}
@@ -215,7 +236,7 @@ function App() {
                 }}
               />
             ) : (
-              <div className="flex items-center justify-center h-full">
+              <div className="flex-1 flex items-center justify-center">
                 <div className="text-center text-slate-500 dark:text-slate-400">
                   <div className="mb-4">
                     <svg className="w-16 h-16 mx-auto opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">

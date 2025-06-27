@@ -4,90 +4,45 @@ import { Button, Select, VariableHighlighter } from '../ui';
 import { RequestBodyEditor } from './RequestBodyEditor';
 import { EnvironmentSelector } from '../environment/EnvironmentSelector';
 import { EnvironmentEditor } from '../environment/EnvironmentEditor';
-import { HttpApiService } from '../../services/http-api';
 import { EnvironmentApiService } from '../../services/environment-api';
-import { CollectionApiService } from '../../services/collection-api';
 import { useWorkspaceStore } from '../../stores/workspace-store';
-import type { HttpRequest, HttpResponse, HttpError, HttpMethod, RequestBody } from '../../types/http';
+import { useRequestTabStore } from '../../stores/request-tab-store';
+import { tabManager } from '../../services/tab-manager';
+import type { HttpRequest, HttpResponse, HttpError, HttpMethod } from '../../types/http';
 import type { Environment } from '../../types/environment';
-import type { Request } from '../../types/collection';
-import { HTTP_METHODS, formatResponseTime, getStatusColor, enhanceUrl, getContentTypeForBody, bodyToString } from '../../types/http';
+import { HTTP_METHODS, formatResponseTime, getStatusColor } from '../../types/http';
 
 interface HttpRequestFormProps {
-  initialRequest?: Request;
+  // Remove initialRequest prop as we now use the active tab
   onResponse?: (response: HttpResponse) => void;
   onError?: (error: HttpError) => void;
 }
 
-// Helper function to convert string body to RequestBody object
-const convertStringToRequestBody = (bodyString: string, bodyType: string): RequestBody => {
-  switch (bodyType) {
-    case 'json':
-      try {
-        const data = JSON.parse(bodyString);
-        return { type: 'json', data, content: bodyString };
-      } catch {
-        return { type: 'json', data: {}, content: bodyString };
-      }
-    case 'form': {
-      // Parse form data from string
-      const fields: Record<string, string> = {};
-      if (bodyString) {
-        const pairs = bodyString.split('&');
-        for (const pair of pairs) {
-          const [key, value] = pair.split('=');
-          if (key) {
-            fields[decodeURIComponent(key)] = decodeURIComponent(value || '');
-          }
-        }
-      }
-      return { type: 'formUrlEncoded', fields };
-    }
-    case 'raw':
-    default:
-      return { type: 'raw', content: bodyString, contentType: 'text/plain' };
-  }
-};
 
 export const HttpRequestForm: React.FC<HttpRequestFormProps> = ({
-  initialRequest,
   onResponse,
   onError
 }) => {
-  const [request, setRequest] = useState<HttpRequest>(() => {
-    if (initialRequest) {
-      // Convert Collection Request to HttpRequest format
-      return {
-        id: initialRequest.id,
-        name: initialRequest.name,
-        method: initialRequest.method as HttpMethod,
-        url: initialRequest.url,
-        headers: initialRequest.headers ? JSON.parse(initialRequest.headers) : {},
-        body: initialRequest.body ? convertStringToRequestBody(initialRequest.body, initialRequest.body_type) : { type: 'none' as const },
-        followRedirects: initialRequest.follow_redirects ?? true,
-        timeoutMs: initialRequest.timeout_ms ?? 30000,
-        createdAt: initialRequest.created_at,
-        updatedAt: initialRequest.updated_at
-      };
-    }
-    
-    return {
-      id: crypto.randomUUID(),
-      name: 'Test Request',
-      method: 'GET',
-      url: '{{API_URL}}/get',
-      headers: {},
-      body: { type: 'none' as const },
-      followRedirects: true,
-      timeoutMs: 30000,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-  });
+  // Get active tab from store
+  const { getActiveTab, updateTabRequest, setTabError } = useRequestTabStore();
+  const activeTab = getActiveTab();
+  
+  // If no active tab, don't render the form
+  if (!activeTab) {
+    return (
+      <div className="flex items-center justify-center h-64 text-slate-500 dark:text-slate-400">
+        <div className="text-center">
+          <p className="text-lg font-medium mb-2">No request tab open</p>
+          <p className="text-sm">Open a request from the collection or create a new tab to get started</p>
+        </div>
+      </div>
+    );
+  }
 
-  const [response, setResponse] = useState<HttpResponse | null>(null);
-  const [error, setError] = useState<HttpError | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const request = activeTab.request;
+  const response = activeTab.response;
+  const error = activeTab.error;
+  const isLoading = activeTab.isLoading;
 
   // Environment state
   const [environments, setEnvironments] = useState<Environment[]>([]);
@@ -99,69 +54,11 @@ export const HttpRequestForm: React.FC<HttpRequestFormProps> = ({
   const { activeWorkspace } = useWorkspaceStore();
   const workspaceId = activeWorkspace?.id || 'default-workspace';
 
-  // Auto-save functionality with debounce
-  const saveRequestToCollection = useCallback(async (updatedRequest: HttpRequest) => {
-    if (!initialRequest) return; // Only save if we have an initial request (editing existing)
-    
-    try {
-      console.log('Auto-saving request:', {
-        id: updatedRequest.id,
-        collection_id: initialRequest.collection_id,
-        name: updatedRequest.name,
-        method: updatedRequest.method,
-        url: updatedRequest.url,
-        headers: updatedRequest.headers
-      });
-      
-      await CollectionApiService.updateRequest({
-        id: updatedRequest.id,
-        collection_id: initialRequest.collection_id, // Preserve the original collection_id
-        name: updatedRequest.name,
-        method: updatedRequest.method,
-        url: updatedRequest.url,
-        headers: updatedRequest.headers,
-        body: bodyToString(updatedRequest.body || { type: 'none' }),
-        body_type: updatedRequest.body?.type || 'none',
-        follow_redirects: updatedRequest.followRedirects,
-        timeout_ms: updatedRequest.timeoutMs
-      });
-      console.log('Request auto-saved to collection successfully');
-    } catch (err) {
-      console.error('Failed to auto-save request:', err);
-    }
-  }, [initialRequest]);
-
-  // Update local state when initialRequest changes (switching between requests)
-  useEffect(() => {
-    if (initialRequest) {
-      const newRequest = {
-        id: initialRequest.id,
-        name: initialRequest.name,
-        method: initialRequest.method as HttpMethod,
-        url: initialRequest.url,
-        headers: initialRequest.headers ? JSON.parse(initialRequest.headers) : {},
-        body: initialRequest.body ? convertStringToRequestBody(initialRequest.body, initialRequest.body_type) : { type: 'none' as const },
-        followRedirects: initialRequest.follow_redirects ?? true,
-        timeoutMs: initialRequest.timeout_ms ?? 30000,
-        createdAt: initialRequest.created_at,
-        updatedAt: initialRequest.updated_at
-      };
-      
-      console.log('Switching to request:', newRequest.name, 'URL:', newRequest.url);
-      setRequest(newRequest);
-    }
-  }, [initialRequest]);
-
-  // Debounced auto-save effect
-  useEffect(() => {
-    if (!initialRequest) return; // Only auto-save for existing requests
-    
-    const timeoutId = setTimeout(() => {
-      saveRequestToCollection(request);
-    }, 1000); // 1 second debounce
-
-    return () => clearTimeout(timeoutId);
-  }, [request, saveRequestToCollection, initialRequest]);
+  // Helper function to update request in active tab
+  const updateRequest = useCallback((updates: Partial<HttpRequest>) => {
+    if (!activeTab) return;
+    updateTabRequest(activeTab.id, updates);
+  }, [activeTab, updateTabRequest]);
 
   // Load environments on component mount
   useEffect(() => {
@@ -267,89 +164,18 @@ export const HttpRequestForm: React.FC<HttpRequestFormProps> = ({
   };
 
   const handleExecuteRequest = async () => {
-    setIsLoading(true);
-    setResponse(null);
-    setError(null);
+    if (!activeTab) return;
 
     try {
-      // Get environment variables for substitution
-      const environmentVariables = getActiveEnvironmentVariables();
+      // Use the tab manager to execute the request
+      await tabManager.executeTabRequest(activeTab.id);
       
-      // Substitute variables and enhance URL
-      let processedRequest = { ...request };
-      
-      // Enhance URL with protocol if needed
-      let enhancedUrl = enhanceUrl(request.url);
-      
-      if (Object.keys(environmentVariables).length > 0) {
-        enhancedUrl = await EnvironmentApiService.substituteVariables(enhancedUrl, environmentVariables);
-        
-        // Substitute variables in headers
-        const processedHeaders: Record<string, string> = {};
-        for (const [key, value] of Object.entries(request.headers)) {
-          const processedKey = await EnvironmentApiService.substituteVariables(key, environmentVariables);
-          const processedValue = await EnvironmentApiService.substituteVariables(value, environmentVariables);
-          processedHeaders[processedKey] = processedValue;
-        }
-        processedRequest.headers = processedHeaders;
-        
-        // Substitute variables in body if it's raw or JSON
-        if (processedRequest.body) {
-          if (processedRequest.body.type === 'raw') {
-            processedRequest.body = {
-              ...processedRequest.body,
-              content: await EnvironmentApiService.substituteVariables(processedRequest.body.content, environmentVariables)
-            };
-          } else if (processedRequest.body.type === 'json') {
-            // Substitute variables in the raw content
-            const substitutedContent = await EnvironmentApiService.substituteVariables(processedRequest.body.content, environmentVariables);
-            try {
-              processedRequest.body = {
-                ...processedRequest.body,
-                content: substitutedContent,
-                data: JSON.parse(substitutedContent)
-              };
-            } catch {
-              // If substitution breaks JSON, keep original content but try to parse data
-              processedRequest.body = {
-                ...processedRequest.body,
-                content: substitutedContent
-              };
-            }
-          } else if (processedRequest.body.type === 'formData' || processedRequest.body.type === 'formUrlEncoded') {
-            const processedFields: Record<string, string> = {};
-            for (const [key, value] of Object.entries(processedRequest.body.fields)) {
-              const processedKey = await EnvironmentApiService.substituteVariables(key, environmentVariables);
-              const processedValue = await EnvironmentApiService.substituteVariables(value, environmentVariables);
-              processedFields[processedKey] = processedValue;
-            }
-            processedRequest.body = {
-              ...processedRequest.body,
-              fields: processedFields
-            };
-          }
-        }
-      }
-      
-      processedRequest.url = enhancedUrl;
-      
-      // Automatically set Content-Type header based on body type
-      if (processedRequest.body && processedRequest.body.type !== 'none') {
-        const contentType = getContentTypeForBody(processedRequest.body);
-        processedRequest.headers = {
-          ...processedRequest.headers,
-          'Content-Type': contentType
-        };
-      }
-
-      const result = await HttpApiService.executeRequest(processedRequest);
-      
-      if (result.response) {
-        setResponse(result.response);
-        onResponse?.(result.response);
-      } else if (result.error) {
-        setError(result.error);
-        onError?.(result.error);
+      // Get updated tab state
+      const updatedTab = getActiveTab();
+      if (updatedTab?.response) {
+        onResponse?.(updatedTab.response);
+      } else if (updatedTab?.error) {
+        onError?.(updatedTab.error);
       }
     } catch (err) {
       const error: HttpError = {
@@ -357,10 +183,10 @@ export const HttpRequestForm: React.FC<HttpRequestFormProps> = ({
         message: err instanceof Error ? err.message : 'Unknown error',
         timestamp: new Date().toISOString()
       };
-      setError(error);
+      
+      // Set error on the tab
+      setTabError(activeTab.id, error);
       onError?.(error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -392,22 +218,27 @@ export const HttpRequestForm: React.FC<HttpRequestFormProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full max-w-full overflow-hidden">
       {/* Request Form */}
-      <div className="space-y-6">
+      <div className="space-y-6 w-full max-w-full">
         {/* Header Section */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-              {initialRequest ? request.name : 'HTTP Request'}
+        <div className="flex items-center justify-between w-full max-w-full min-w-0">
+          <div className="flex items-center space-x-3 min-w-0 flex-1">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 truncate">
+              {request.name}
             </h3>
-            {initialRequest && (
-              <span className="px-2 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs rounded-full">
+            {activeTab.requestId && (
+              <span className="px-2 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs rounded-full flex-shrink-0">
                 Collection Request
               </span>
             )}
+            {activeTab.hasUnsavedChanges && (
+              <span className="px-2 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 text-xs rounded-full flex-shrink-0">
+                Unsaved
+              </span>
+            )}
           </div>
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3 flex-shrink-0">
             <EnvironmentSelector
               environments={environments}
               activeEnvironmentId={activeEnvironmentId}
@@ -421,23 +252,23 @@ export const HttpRequestForm: React.FC<HttpRequestFormProps> = ({
         </div>
 
         {/* Request Form Content */}
-        <div className="space-y-4">
+        <div className="space-y-4 w-full max-w-full">
             {/* Method and URL */}
-            <div className="flex space-x-2">
+            <div className="flex space-x-2 w-full max-w-full">
               <Select
                 value={request.method}
-                onChange={(value) => setRequest(prev => ({ ...prev, method: value as HttpMethod }))}
+                onChange={(value) => updateRequest({ method: value as HttpMethod })}
                 options={HTTP_METHODS.map(method => ({ value: method, label: method }))}
-                className="min-w-[100px]"
+                className="min-w-[100px] flex-shrink-0"
               />
               
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <VariableHighlighter
                   value={request.url}
-                  onChange={(url) => setRequest(prev => ({ ...prev, url }))}
+                  onChange={(url) => updateRequest({ url })}
                   variables={getActiveEnvironmentVariables()}
                   placeholder="api.example.com/endpoint"
-                  className="text-sm"
+                  className="text-sm w-full"
                 />
               </div>
               
@@ -445,7 +276,7 @@ export const HttpRequestForm: React.FC<HttpRequestFormProps> = ({
                 variant="primary"
                 onClick={handleExecuteRequest}
                 disabled={isLoading || !request.url.trim()}
-                className="flex items-center space-x-2 min-w-[100px]"
+                className="flex items-center space-x-2 min-w-[100px] flex-shrink-0"
               >
                 {isLoading ? (
                   <>
@@ -467,7 +298,7 @@ export const HttpRequestForm: React.FC<HttpRequestFormProps> = ({
               <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Request Body</h4>
               <RequestBodyEditor
                 body={request.body || { type: 'none' }}
-                onChange={(body) => setRequest(prev => ({ ...prev, body }))}
+                onChange={(body) => updateRequest({ body })}
                 variables={getActiveEnvironmentVariables()}
               />
             </div>

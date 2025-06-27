@@ -8,10 +8,12 @@ import {
   MagnifyingGlassIcon,
   ChevronRightIcon,
   ChevronDownIcon,
+  ArrowTopRightOnSquareIcon,
 } from '@heroicons/react/24/outline';
 import { Button, Input } from '../ui';
 import { CollectionEditor } from './CollectionEditor';
 import { CollectionApiService } from '../../services/collection-api';
+import { tabManager } from '../../services/tab-manager';
 import { cn } from '../../utils/cn';
 import type { Collection, CollectionSummary, Request } from '../../types/collection';
 import { getMethodColor } from '../../types/http';
@@ -153,6 +155,15 @@ export const CollectionBrowser: React.FC<CollectionBrowserProps> = ({
       });
     } catch (err) {
       console.error('Failed to duplicate request:', err);
+    }
+  };
+
+  const handleOpenInTab = async (request: Request) => {
+    try {
+      const tabId = tabManager.openRequestInTab(request, true);
+      console.log(`Opened request "${request.name}" in tab: ${tabId}`);
+    } catch (err) {
+      console.error('Failed to open request in tab:', err);
     }
   };
 
@@ -585,17 +596,21 @@ export const CollectionBrowser: React.FC<CollectionBrowserProps> = ({
                                 e.stopPropagation();
                                 console.log('CollectionBrowser: Request clicked:', request);
                                 
-                                // Reload the request data to get latest changes
+                                // Reload the request data to get latest changes and open in tab
                                 try {
                                   const latestRequest = await CollectionApiService.getRequest(request.id);
                                   if (latestRequest) {
                                     console.log('Loaded latest request data:', latestRequest.name, 'URL:', latestRequest.url);
+                                    await handleOpenInTab(latestRequest);
+                                    // Keep backward compatibility for old selection model
                                     onRequestSelect?.(latestRequest);
                                   } else {
+                                    await handleOpenInTab(request);
                                     onRequestSelect?.(request);
                                   }
                                 } catch (err) {
                                   console.error('Failed to reload request data:', err);
+                                  await handleOpenInTab(request);
                                   onRequestSelect?.(request);
                                 }
                               }}
@@ -776,6 +791,24 @@ export const CollectionBrowser: React.FC<CollectionBrowserProps> = ({
             }}
             data-dropdown-portal="request-menu"
           >
+            <button
+              onClick={async (e) => {
+                e.stopPropagation();
+                setOpenRequestMenuId(null);
+                setRequestDropdownPosition(null);
+                const request = collectionRequests[Object.keys(collectionRequests).find(collectionId => 
+                  collectionRequests[collectionId]?.some(r => r.id === openRequestMenuId)
+                ) || '']?.find(r => r.id === openRequestMenuId);
+                if (request) {
+                  await handleOpenInTab(request);
+                }
+              }}
+              className="w-full text-left px-3 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex items-center space-x-2"
+            >
+              <ArrowTopRightOnSquareIcon className="w-4 h-4" />
+              <span>Open in Tab</span>
+            </button>
+            <hr className="border-slate-200 dark:border-slate-600 my-1" />
             <button
               onClick={(e) => {
                 e.stopPropagation();

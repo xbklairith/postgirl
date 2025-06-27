@@ -128,14 +128,14 @@ export const EnvironmentManagement: React.FC<EnvironmentManagementProps> = ({
     }
   };
 
-  const handleEnvironmentChange = async (environmentId: string) => {
-    try {
-      await EnvironmentApiService.setActiveEnvironment(workspaceId, environmentId);
-      onEnvironmentChange?.(environmentId);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to set active environment');
-    }
-  };
+  // const handleEnvironmentChange = async (environmentId: string) => {
+  //   try {
+  //     await EnvironmentApiService.setActiveEnvironment(workspaceId, environmentId);
+  //     onEnvironmentChange?.(environmentId);
+  //   } catch (err) {
+  //     setError(err instanceof Error ? err.message : 'Failed to set active environment');
+  //   }
+  // };
 
   // const handleValidateEnvironment = async (environment: Environment): Promise<ValidationResult> => {
   //   // For now, return a simple validation

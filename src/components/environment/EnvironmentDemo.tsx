@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { EnvironmentManagement } from './EnvironmentManagement';
 import { EnvironmentApiService } from '../../services/environment-api';
-import { Button } from '../ui';
 // import type { Environment } from '../../types/environment';
 
 export const EnvironmentDemo: React.FC = () => {

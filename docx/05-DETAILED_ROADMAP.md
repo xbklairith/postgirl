@@ -338,7 +338,38 @@ impl HttpService {
 
 ## Phase 3: Advanced Features (Weeks 15-22)
 
-### Week 15-16: Mock Server Implementation
+### Week 15: Multi-Request Tabbed Interface (Priority Feature)
+
+**ARBI-020: Multi-Request Tabbed Interface Implementation**
+- **Priority**: P0 (Critical - Major UX Enhancement)
+- **Effort**: 5 days
+- **Dependencies**: ARBI-016 (HTTP Request Form), Collection Management
+- **Business Impact**: Transform from single-request to multi-request editing environment
+- **Deliverables**:
+  - Tab state management system (Zustand store)
+  - Visual tab bar component with indicators
+  - Tab-aware HTTP request form
+  - Collection integration ("Open in Tab" functionality)
+  - Session persistence and restoration
+  - Keyboard shortcuts and context menus
+  - Performance optimization for multiple tabs
+
+**Implementation Architecture:**
+```typescript
+// Core tab system components
+src/stores/request-tab-store.ts      // Tab state management
+src/components/tabs/TabBar.tsx       // Tab navigation UI
+src/services/tab-manager.ts          // Tab business logic
+```
+
+**User Experience Goals:**
+- Browser-like tab behavior familiar to developers
+- Independent auto-save per tab
+- Seamless switching between multiple requests
+- Professional multi-document interface
+- Efficient memory usage and performance
+
+### Week 16: Mock Server Implementation
 
 **ARBI-022: Local Mock Server**
 - **Priority**: P1 (High)

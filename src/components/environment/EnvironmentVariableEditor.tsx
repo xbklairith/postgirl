@@ -3,9 +3,7 @@ import {
   PlusIcon, 
   TrashIcon, 
   EyeIcon, 
-  EyeSlashIcon,
-  ExclamationTriangleIcon,
-  CheckCircleIcon
+  EyeSlashIcon
 } from '@heroicons/react/24/outline';
 import { Button, Input, Select, Card, CardHeader, CardBody } from '../ui';
 import { cn } from '../../utils/cn';
@@ -54,12 +52,12 @@ export const EnvironmentVariableEditor: React.FC<EnvironmentVariableEditorProps>
   });
 
   // Simple validation for variable values
-  const isValidValue = (value: string, type: VariableType): boolean => {
-    if (type === 'secret') {
-      return value.trim().length > 0; // Secrets must not be empty
-    }
-    return true; // Strings can be any value
-  };
+  // const isValidValue = (value: string, type: VariableType): boolean => {
+  //   if (type === 'secret') {
+  //     return value.trim().length > 0; // Secrets must not be empty
+  //   }
+  //   return true; // Strings can be any value
+  // };
 
   const addVariable = () => {
     if (!newVariable.key.trim()) return;
@@ -99,7 +97,7 @@ export const EnvironmentVariableEditor: React.FC<EnvironmentVariableEditorProps>
   };
 
   const renderVariableRow = (variable: EnvironmentVariable) => {
-    const isValueValid = isValidValue(variable.value, variable.variableType);
+    // const isValueValid = isValidValue(variable.value, variable.variableType);
 
     return (
       <div
