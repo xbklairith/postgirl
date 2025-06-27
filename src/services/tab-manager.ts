@@ -3,6 +3,7 @@ import type { RequestTab } from '../types/tab';
 import { TAB_CONSTANTS } from '../types/tab';
 import type { HttpRequest, HttpResponse, HttpError } from '../types/http';
 import type { Request } from '../types/collection';
+import { globalEvents, EVENTS } from '../utils/events';
 
 /**
  * TabManager - Service for handling tab business logic and integration
@@ -133,9 +134,64 @@ export class TabManager {
     }
 
     try {
-      // Here you would integrate with your collection/request saving service
-      // For now, we'll simulate the save operation
-      await this.simulateRequestSave(tab);
+      // Only save if this tab is connected to a collection request
+      if (tab.requestId && tab.collectionId) {
+        // Import the CollectionApiService to save the changes
+        const { CollectionApiService } = await import('./collection-api');
+        
+        // Convert RequestBody to string format for storage
+        let bodyString: string | undefined;
+        let bodyType: string | undefined;
+        
+        if (tab.request.body) {
+          switch (tab.request.body.type) {
+            case 'none':
+              bodyString = undefined;
+              bodyType = 'none';
+              break;
+            case 'raw':
+              bodyString = tab.request.body.content;
+              bodyType = 'raw';
+              break;
+            case 'json':
+              bodyString = tab.request.body.content || JSON.stringify(tab.request.body.data || {});
+              bodyType = 'json';
+              break;
+            case 'formData':
+              bodyString = JSON.stringify(tab.request.body.fields || {});
+              bodyType = 'form-data';
+              break;
+            case 'formUrlEncoded':
+              bodyString = JSON.stringify(tab.request.body.fields || {});
+              bodyType = 'x-www-form-urlencoded';
+              break;
+            default:
+              bodyString = undefined;
+              bodyType = 'none';
+          }
+        }
+        
+        // Update the request in the collection
+        await CollectionApiService.updateRequest({
+          id: tab.requestId,
+          name: tab.name,
+          method: tab.request.method,
+          url: tab.request.url,
+          headers: tab.request.headers,
+          body: bodyString,
+          body_type: bodyType,
+        });
+        
+        console.log(`Saved tab "${tab.name}" to collection`);
+        
+        // Emit event to notify collection browser to refresh
+        globalEvents.emit(EVENTS.TAB_SAVED_TO_COLLECTION, {
+          tabId,
+          requestId: tab.requestId,
+          collectionId: tab.collectionId,
+          request: tab.request
+        });
+      }
       
       // Mark as saved
       store.markTabSaved(tabId);
@@ -385,12 +441,6 @@ export class TabManager {
     };
   }
 
-  private async simulateRequestSave(tab: RequestTab): Promise<void> {
-    // Simulate save delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    console.log(`Saved request: ${tab.name}`);
-  }
 }
 
 // Export singleton instance

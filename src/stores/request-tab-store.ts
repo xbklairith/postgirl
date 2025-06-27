@@ -207,18 +207,38 @@ export const useRequestTabStore = create<RequestTabState>()(
       
       if (tabIndex === -1) return false;
       
+      const tab = state.tabs[tabIndex];
+      const oldRequest = tab.request;
+      const newRequest = { ...oldRequest, ...request };
+      
+      // Check if this is a significant change that should trigger immediate save
+      const significantChange = 
+        (request.method && request.method !== oldRequest.method) ||
+        (request.url && request.url !== oldRequest.url) ||
+        (request.name && request.name !== oldRequest.name);
+      
       set(state => ({
         tabs: state.tabs.map((tab, index) => 
           index === tabIndex 
             ? { 
                 ...tab, 
-                request: { ...tab.request, ...request },
+                request: newRequest,
                 hasUnsavedChanges: true,
                 lastAccessedAt: new Date(),
               }
             : tab
         ),
       }));
+      
+      // Trigger immediate save for significant changes to collection requests
+      if (significantChange && tab.requestId && tab.collectionId) {
+        // Import tab manager and trigger save
+        import('../services/tab-manager').then(({ tabManager }) => {
+          tabManager.saveTabToCollection(tabId).catch(error => {
+            console.error('Failed to save significant tab changes:', error);
+          });
+        });
+      }
       
       return true;
     },

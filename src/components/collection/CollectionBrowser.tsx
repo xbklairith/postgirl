@@ -14,6 +14,7 @@ import { Button, Input } from '../ui';
 import { CollectionEditor } from './CollectionEditor';
 import { CollectionApiService } from '../../services/collection-api';
 import { tabManager } from '../../services/tab-manager';
+import { globalEvents, EVENTS } from '../../utils/events';
 import { cn } from '../../utils/cn';
 import type { Collection, CollectionSummary, Request } from '../../types/collection';
 import { getMethodColor } from '../../types/http';
@@ -61,6 +62,23 @@ export const CollectionBrowser: React.FC<CollectionBrowserProps> = ({
   useEffect(() => {
     loadCollections();
   }, [workspaceId]);
+
+  // Listen for tab save events to refresh collection data
+  useEffect(() => {
+    const handleTabSaved = (data: { collectionId: string; requestId: string }) => {
+      console.log('CollectionBrowser: Tab saved, refreshing collection data', data);
+      // Reload the specific collection that was updated
+      if (data.collectionId && collectionRequests[data.collectionId]) {
+        loadRequestsForCollection(data.collectionId);
+      }
+    };
+
+    globalEvents.on(EVENTS.TAB_SAVED_TO_COLLECTION, handleTabSaved);
+
+    return () => {
+      globalEvents.off(EVENTS.TAB_SAVED_TO_COLLECTION, handleTabSaved);
+    };
+  }, [collectionRequests]);
 
   useEffect(() => {
     console.log('CollectionBrowser onRequestCreate callback:', !!onRequestCreate);
