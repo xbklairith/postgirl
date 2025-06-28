@@ -508,9 +508,9 @@ interface MigrationPatterns {
   };
   
   formatSupport: {
-    rule: 'Support all major API testing tool formats';
-    openapi: 'Full OpenAPI 3.0+ specification import';
-    insomnia: 'Complete Insomnia workspace migration';
+    rule: 'Support three core API testing tool formats';
+    postman: 'Complete Postman Collection v2.1 import/export';
+    openapi: 'Full OpenAPI 3.0+ specification import/export';
     curl: 'Perfect cURL command import and export';
   };
 }

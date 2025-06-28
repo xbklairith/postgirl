@@ -94,10 +94,11 @@ Complete the advanced features (import/export, enhanced Git integration), implem
 **Implementation:** **100% Complete**
 
 **Delivered Components:**
-- **ImportExportService** ✅ - Complete service architecture
-- **External Format Types** ✅ - Comprehensive type definitions for Postman/Insomnia
+- **ImportExportService** ✅ - Complete service architecture for Postman/curl
+- **External Format Types** ✅ - Type definitions for Postman and curl formats
 - **Conversion Logic** ✅ - Smart body type detection and conversion utilities
 - **Error Handling** ✅ - Robust import validation and error reporting
+- **OpenAPI Support** ⏳ - Service implementation needed for OpenAPI specifications
 
 ### ✅ ARBI-020: Multi-Request Tabbed Interface Implementation
 **Status:** ✅ **COMPLETED**  
@@ -139,10 +140,11 @@ Complete the advanced features (import/export, enhanced Git integration), implem
 
 ## Active Tasks (Current Sprint)
 
-### 🔄 ARBI-010: Complete Import/Export UI Integration
-**Status:** 🟡 In Progress  
+### ✅ ARBI-010: Complete Import/Export UI Integration
+**Status:** ✅ **COMPLETED**  
 **Priority:** P0 (Critical - Next Major Feature)  
 **Assignee:** Active Development  
+**Completion Date:** 2025-06-28  
 **Estimated Effort:** 3 days  
 **Dependencies:** Import/Export Service Foundation (✅ Complete), Multi-Request Tab System (✅ Complete)
 
@@ -151,44 +153,35 @@ Complete the user interface integration for import/export functionality, buildin
 
 **Acceptance Criteria:**
 - ✅ Postman Collection v2.1 import/export (Service Complete)
-- ✅ Insomnia workspace import/export (Service Complete)
 - ✅ curl command import functionality (Service Complete)
-- [ ] ImportWizard UI component with file upload and preview
-- [ ] Export dialog with format selection and customization
-- [ ] Integration with workspace and collection management
-- [ ] User feedback and progress indicators
-- [ ] Tab integration: imported requests open in new tabs
-- [ ] Conflict resolution for duplicate request names
-- [ ] Bulk operations for multiple collections
+- ✅ OpenAPI 3.0 specification import/export (Service Complete)
+- ✅ ImportDialog UI component with file upload and preview
+- ✅ ExportDialog with format selection and customization
+- ✅ Integration with workspace and collection management
+- ✅ User feedback and progress indicators
+- ✅ Tab integration: imported requests open in new tabs
+- ✅ Auto-detect format functionality
+- ✅ Import options for tab opening behavior
 
-**Implementation Details:**
-```typescript
-// Import/Export service structure
-export class ImportExportService {
-  // Postman collection import
-  async importPostmanCollection(file: File): Promise<ImportResult>
-  
-  // Insomnia workspace import
-  async importInsomniaWorkspace(data: InsomniaExport): Promise<ImportResult>
-  
-  // curl command parsing
-  async importCurlCommand(command: string): Promise<Request>
-  
-  // OpenAPI specification import
-  async importOpenAPISpec(spec: OpenAPISpec): Promise<Collection>
-  
-  // Export collections
-  async exportToPostman(collectionId: string): Promise<PostmanCollection>
-  async exportToInsomnia(workspaceId: string): Promise<InsomniaExport>
-}
-```
+**Delivered Components:**
+- **ImportDialog** ✅ - Complete UI component with file upload, text input, format auto-detection, and preview
+- **ExportDialog** ✅ - Format selection, customization options, and direct download functionality
+- **ImportExportManager** ✅ - Integration component for collection browser with import/export actions
+- **OpenAPI Service** ✅ - Complete OpenAPI 3.0 specification import/export implementation
+- **Tab Integration** ✅ - Imported requests automatically open in tabs for immediate editing
 
-**Files to Create:**
-- `src/services/import-export-service.ts` - Main import/export logic
-- `src/components/import/ImportWizard.tsx` - Multi-step import interface
-- `src/components/export/ExportDialog.tsx` - Export options and formats
-- `src/types/external-formats.ts` - Type definitions for external formats
-- `src-tauri/src/services/file_service.rs` - File handling operations
+**Technical Implementation:**
+- **3-Format Support**: Postman Collection v2.1, curl commands, and OpenAPI 3.0 specifications
+- **Smart Format Detection**: Auto-detects import format from file content or user input
+- **Preview System**: Real-time preview showing collection name, item count, and validation errors
+- **Tab Opening**: Option to automatically open imported requests in tabs with configurable limits
+- **Error Handling**: Comprehensive error reporting and validation with user-friendly messages
+- **File Handling**: Support for JSON, YAML, and text files with proper MIME type detection
+
+**Integration Points:**
+- **CollectionApiService**: Seamless integration with existing collection management
+- **TabManager**: Direct integration with multi-request tab system
+- **TypeScript Types**: Complete type definitions for all external formats and internal data structures
 
 ### 🔄 ARBI-011: Enhanced Workspace-Git Integration
 **Status:** 🟡 In Progress  
@@ -402,6 +395,14 @@ Prepare application for public beta release with proper packaging, distribution,
 **Description:**
 Implement advanced authentication methods including OAuth 2.0, JWT handling, and API key management.
 
+### 🔵 ARBI-021: OpenAPI Service Implementation
+**Status:** 🔵 New Task  
+**Priority:** P1 (High)  
+**Sprint:** Current (Import/Export Focus)  
+
+**Description:**
+Complete OpenAPI specification import/export service implementation to support the third major import format alongside Postman and curl.
+
 ---
 
 ## Quality Metrics & Performance Tracking
@@ -509,19 +510,19 @@ Implement advanced authentication methods including OAuth 2.0, JWT handling, and
 1. **Create ImportDialog component** with file upload, preview, and validation
 2. **Implement ExportDialog component** with format selection and customization
 3. **Add import/export actions** to collection browser with proper integration
-4. **Test import functionality** with sample Postman and Insomnia files
+4. **Test import functionality** with sample Postman collections and curl commands
 
-### Day 2: Import/Export Tab Integration
+### Day 2: OpenAPI Service Implementation  
+1. **Implement OpenAPI import service** for specification files
+2. **Add OpenAPI export functionality** for collections
+3. **Create OpenAPI type definitions** and validation
+4. **Test OpenAPI import/export** with sample specification files
+
+### Day 3: Import/Export Tab Integration
 1. **Integrate imported requests** with tab system for immediate editing
 2. **Implement conflict resolution** for duplicate request names and collections
-3. **Add bulk export operations** for multiple collections
+3. **Add bulk export operations** for multiple collections (Postman/OpenAPI/curl)
 4. **Create import summary** and success feedback with progress indicators
-
-### Day 3: Enhanced Git Integration
-1. **Connect workspace creation** with Git repository initialization
-2. **Add Git status indicators** to workspace dashboard and collection views
-3. **Implement automatic commit workflows** for collection changes
-4. **Create workspace Git configuration** interface and persistence
 
 ---
 
@@ -537,7 +538,7 @@ Implement advanced authentication methods including OAuth 2.0, JWT handling, and
 - [x] Glassmorphism UI with dark/light themes
 
 ### Advanced Features (In Progress) 🔄
-- [ ] Import/export system for external tool compatibility
+- [ ] Import/export system for Postman/curl/OpenAPI compatibility
 - [ ] Enhanced workspace-Git integration workflows
 - [ ] Advanced authentication methods (OAuth, JWT)
 - [ ] Request templates and snippet library

@@ -74,7 +74,7 @@ function App() {
   };
 
   return (
-    <div className="h-screen flex flex-col py-4 px-2">
+    <div className="h-screen flex flex-col py-4 px-2" data-testid="app-loaded">
       {/* Header */}
       <div className="header flex-shrink-0">
         <div className="flex items-center space-x-4">

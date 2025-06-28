@@ -3,7 +3,8 @@ import { FolderIcon, LinkIcon, DocumentTextIcon } from '@heroicons/react/24/outl
 import { useWorkspaceStore } from '../../stores/workspace-store';
 import { Button, Input, Modal } from '../ui';
 import { checkDirectoryExists } from '../../services/workspace-api';
-import type { CreateWorkspaceRequest } from '../../types/workspace';
+import { WorkspaceGitIntegration } from '../../services/workspace-git-integration';
+import type { CreateWorkspaceWithGitRequest } from '../../services/workspace-git-integration';
 
 interface WorkspaceCreationWizardProps {
   isOpen: boolean;
@@ -17,11 +18,16 @@ export const WorkspaceCreationWizard: React.FC<WorkspaceCreationWizardProps> = (
   onSuccess
 }) => {
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState<CreateWorkspaceRequest>({
+  const [formData, setFormData] = useState<CreateWorkspaceWithGitRequest>({
     name: '',
     description: '',
     git_repository_url: '',
-    local_path: ''
+    local_path: '',
+    initializeGit: false,
+    gitConfig: {
+      userName: '',
+      userEmail: '',
+    },
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [directoryExists, setDirectoryExists] = useState(false);
@@ -29,12 +35,19 @@ export const WorkspaceCreationWizard: React.FC<WorkspaceCreationWizardProps> = (
   
   const { createWorkspace, isLoading, error } = useWorkspaceStore();
 
-  const handleInputChange = (field: keyof CreateWorkspaceRequest, value: string) => {
+  const handleInputChange = (field: keyof CreateWorkspaceWithGitRequest, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     // Clear error for this field
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
+    if (errors[field as string]) {
+      setErrors(prev => ({ ...prev, [field as string]: '' }));
     }
+  };
+
+  const handleGitConfigChange = (field: 'userName' | 'userEmail', value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      gitConfig: { ...prev.gitConfig!, [field]: value }
+    }));
   };
 
   const validateStep1 = () => {
@@ -134,16 +147,38 @@ export const WorkspaceCreationWizard: React.FC<WorkspaceCreationWizardProps> = (
     if (!validateStep2()) return;
     
     try {
-      const workspace = await createWorkspace({
-        ...formData,
-        description: formData.description || undefined,
-        git_repository_url: formData.git_repository_url || undefined
-      });
+      const shouldInitGit = WorkspaceGitIntegration.shouldInitializeGit(formData) && formData.initializeGit;
       
-      onSuccess?.(workspace.id);
+      if (shouldInitGit) {
+        // Use Git integration service for workspace creation with Git
+        const result = await WorkspaceGitIntegration.createWorkspaceWithGit({
+          ...formData,
+          description: formData.description || undefined,
+          git_repository_url: formData.git_repository_url || undefined,
+        });
+        
+        // Show Git initialization result if needed
+        if (result.gitResult && !result.gitResult.initialized) {
+          console.warn('Git initialization failed:', result.gitResult.message);
+        }
+        
+        onSuccess?.(result.workspace.id);
+      } else {
+        // Use regular workspace creation
+        const workspace = await createWorkspace({
+          name: formData.name,
+          description: formData.description || undefined,
+          git_repository_url: formData.git_repository_url || undefined,
+          local_path: formData.local_path,
+        });
+        
+        onSuccess?.(workspace.id);
+      }
+      
       handleClose();
     } catch (error) {
-      // Error is handled by the store
+      // Error is handled by the store or thrown by WorkspaceGitIntegration
+      console.error('Workspace creation failed:', error);
     }
   };
 
@@ -153,7 +188,12 @@ export const WorkspaceCreationWizard: React.FC<WorkspaceCreationWizardProps> = (
       name: '',
       description: '',
       git_repository_url: '',
-      local_path: ''
+      local_path: '',
+      initializeGit: false,
+      gitConfig: {
+        userName: '',
+        userEmail: '',
+      },
     });
     setErrors({});
     setDirectoryExists(false);
@@ -411,6 +451,56 @@ export const WorkspaceCreationWizard: React.FC<WorkspaceCreationWizardProps> = (
               )}
             </div>
 
+            {/* Git Initialization Options - only show for local workspaces without Git URL */}
+            {!formData.git_repository_url && (
+              <div className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-4">
+                <div className="flex items-center space-x-3">
+                  <input
+                    type="checkbox"
+                    id="initializeGit"
+                    checked={formData.initializeGit}
+                    onChange={(e) => handleInputChange('initializeGit', e.target.checked)}
+                    className="h-4 w-4 text-primary-600 border-slate-300 rounded focus:ring-primary-500"
+                  />
+                  <label htmlFor="initializeGit" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Initialize Git repository for this workspace
+                  </label>
+                </div>
+                
+                <p className="text-sm text-slate-500 dark:text-slate-400 ml-7">
+                  Creates a new Git repository in the workspace directory for version control and team collaboration.
+                </p>
+
+                {/* Git Configuration - only show if Git initialization is enabled */}
+                {formData.initializeGit && (
+                  <div className="ml-7 space-y-3 pt-3 border-t border-slate-200 dark:border-slate-700">
+                    <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      Git Configuration (Optional)
+                    </h4>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <Input
+                        label="Your Name"
+                        placeholder="John Doe"
+                        value={formData.gitConfig?.userName || ''}
+                        onChange={(e) => handleGitConfigChange('userName', e.target.value)}
+                      />
+                      <Input
+                        label="Email"
+                        placeholder="john@example.com"
+                        value={formData.gitConfig?.userEmail || ''}
+                        onChange={(e) => handleGitConfigChange('userEmail', e.target.value)}
+                      />
+                    </div>
+                    
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      Used for Git commits. Leave empty to use global Git configuration.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
               <h4 className="font-medium text-slate-900 dark:text-slate-100 mb-2">
                 Summary
@@ -418,8 +508,13 @@ export const WorkspaceCreationWizard: React.FC<WorkspaceCreationWizardProps> = (
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-slate-500 dark:text-slate-400">Type:</span>
-                  <span className={`font-medium ${formData.git_repository_url ? 'text-green-600 dark:text-green-400' : 'text-slate-600 dark:text-slate-400'}`}>
-                    {formData.git_repository_url ? 'Git-Connected Workspace' : 'Local-Only Workspace'}
+                  <span className={`font-medium ${formData.git_repository_url || formData.initializeGit ? 'text-green-600 dark:text-green-400' : 'text-slate-600 dark:text-slate-400'}`}>
+                    {formData.git_repository_url 
+                      ? 'Git-Connected Workspace' 
+                      : formData.initializeGit 
+                        ? 'Local Workspace with Git' 
+                        : 'Local-Only Workspace'
+                    }
                   </span>
                 </div>
                 <div className="flex justify-between">

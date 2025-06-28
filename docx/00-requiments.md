@@ -54,7 +54,7 @@ postgirl-desktop/
 - Create empty workspace with Git initialization
 - Clone existing repository (GitHub, GitLab, Bitbucket, self-hosted)
 - Fork from template workspace
-- Import from other tools (Postman, Insomnia, OpenAPI)
+- Import from other tools (Postman, curl, OpenAPI)
 
 **Workspace Configuration:**
 ```json
@@ -675,19 +675,16 @@ URL Components:
 
 ### **7.3 Import/Export**
 **Import Sources:**
-- Postman collections (v2.0, v2.1)
-- Insomnia collections
-- OpenAPI/Swagger specifications (2.0, 3.0, 3.1)
+- Postman collections (v2.1)
+- OpenAPI/Swagger specifications (3.0, 3.1)
 - cURL commands
-- HAR (HTTP Archive) files
-- Paw collections
 
 **Export Formats:**
 - Postgirl native format
 - Postman collection format
 - OpenAPI specification
+- cURL commands
 - Documentation formats (Markdown, HTML, PDF)
-- Code samples in multiple languages
 
 **Migration Tools:**
 - Automated conversion with validation
@@ -2212,13 +2209,10 @@ const importOpenAPI = async (specFile) => {
 };
 ```
 
-**Other Import Sources:**
-- Insomnia workspaces and collections
+**Streamlined Import Sources:**
 - cURL commands (single and batch)
-- HAR (HTTP Archive) files
-- Paw collections
-- Thunder Client collections
-- Bruno collections
+- Focused on three core formats for maximum compatibility
+- Simplified migration workflow
 
 ### **18.2 Export Options**
 **Native Export:**
@@ -2295,7 +2289,6 @@ Authenticates a user and returns access tokens.
 │                                                             │
 │ Step 1: Select Source                                       │
 │ ◉ Postman Collection                                        │
-│ ○ Insomnia Workspace                                        │
 │ ○ OpenAPI Specification                                     │
 │ ○ cURL Commands                                             │
 │                                                             │
@@ -2821,7 +2814,7 @@ npm install -g postgirl-desktop
 
 ### **25.2 Business Risks**
 **Competition from Established Players:**
-- **Risk**: Postman/Insomnia feature parity race
+- **Risk**: Feature parity race with established API testing tools
 - **Mitigation**: Focus on Git-first differentiation, superior UX
 - **Contingency**: Pivot to specific market segments
 

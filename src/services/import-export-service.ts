@@ -1,13 +1,14 @@
 import type {
   PostmanCollection,
-  InsomniaExport,
   ImportResult,
   ExportResult,
   ImportError,
   ImportWarning,
   PostmanItem,
+  InsomniaExport,
   InsomniaRequest,
 } from '../types/external-formats';
+import type { OpenAPIDocument } from '../types/openapi';
 import type {
   Request,
   CreateCollectionRequest,
@@ -215,6 +216,119 @@ export class ImportExportService {
   }
 
   /**
+   * Import an OpenAPI specification
+   */
+  async importOpenAPISpec(
+    workspaceId: string,
+    specData: OpenAPIDocument
+  ): Promise<ImportResult> {
+    const startTime = Date.now();
+    const errors: ImportError[] = [];
+    const warnings: ImportWarning[] = [];
+    const collections: any[] = [];
+
+    try {
+      // Validate OpenAPI spec format
+      if (!this.isValidOpenAPISpec(specData)) {
+        throw new Error('Invalid OpenAPI specification format');
+      }
+
+      // Create main collection
+      const collectionRequest: CreateCollectionRequest = {
+        workspace_id: workspaceId,
+        name: specData.info.title,
+        description: specData.info.description || '',
+      };
+
+      const newCollection = await CollectionApiService.createCollection(collectionRequest);
+      collections.push({
+        id: newCollection.id,
+        name: newCollection.name,
+        description: newCollection.description,
+        requestCount: 0,
+        folderCount: 0,
+        sourceFormat: 'openapi' as const,
+        originalId: specData.info.title,
+      });
+
+      // Convert OpenAPI paths to requests
+      let requestCount = 0;
+      const baseUrl = specData.servers?.[0]?.url || 'https://api.example.com';
+
+      for (const [path, pathItem] of Object.entries(specData.paths)) {
+        const methods = ['get', 'post', 'put', 'patch', 'delete', 'head', 'options'] as const;
+        
+        for (const method of methods) {
+          const operation = pathItem[method];
+          if (!operation) continue;
+
+          try {
+            const requestData = this.convertOpenAPIOperation(
+              newCollection.id,
+              method.toUpperCase(),
+              baseUrl + path,
+              operation,
+              path
+            );
+            await CollectionApiService.createRequest(requestData);
+            requestCount++;
+          } catch (error) {
+            errors.push({
+              type: 'conversion',
+              message: `Failed to convert operation: ${method.toUpperCase()} ${path}`,
+              details: error instanceof Error ? error.message : String(error),
+              itemName: operation.summary || `${method.toUpperCase()} ${path}`,
+            });
+          }
+        }
+      }
+
+      // Update collection summary
+      collections[0].requestCount = requestCount;
+
+      const duration = Date.now() - startTime;
+
+      return {
+        success: errors.length === 0,
+        collections,
+        environments: [], // TODO: Handle OpenAPI servers as environments
+        errors,
+        warnings,
+        summary: {
+          totalItems: requestCount,
+          successfulItems: requestCount - errors.length,
+          failedItems: errors.length,
+          warningItems: warnings.length,
+          duration,
+          sourceFormat: `OpenAPI ${specData.openapi}`,
+        },
+      };
+    } catch (error) {
+      errors.push({
+        type: 'parsing',
+        message: 'Failed to import OpenAPI specification',
+        details: error instanceof Error ? error.message : String(error),
+      });
+
+      return {
+        success: false,
+        collections,
+        environments: [],
+        errors,
+        warnings,
+        summary: {
+          totalItems: 0,
+          successfulItems: 0,
+          failedItems: 1,
+          warningItems: 0,
+          duration: Date.now() - startTime,
+          sourceFormat: `OpenAPI ${specData.openapi}`,
+        },
+      };
+    }
+  }
+
+  /**
    * Import from a curl command
    */
   async importCurlCommand(
@@ -329,6 +443,20 @@ export class ImportExportService {
       typeof data.info === 'object' &&
       typeof data.info.name === 'string' &&
       Array.isArray(data.item)
+    );
+  }
+
+  /**
+   * Validate if data is a valid OpenAPI specification
+   */
+  private isValidOpenAPISpec(data: any): data is OpenAPIDocument {
+    return (
+      typeof data === 'object' &&
+      data !== null &&
+      typeof data.openapi === 'string' &&
+      typeof data.info === 'object' &&
+      typeof data.info.title === 'string' &&
+      typeof data.paths === 'object'
     );
   }
 
@@ -502,6 +630,107 @@ export class ImportExportService {
       follow_redirects: true,
       timeout_ms: 30000,
     };
+  }
+
+  /**
+   * Convert OpenAPI operation to internal format
+   */
+  private convertOpenAPIOperation(
+    collectionId: string,
+    method: string,
+    url: string,
+    operation: any,
+    path: string
+  ): CreateRequestRequest {
+    // Extract headers from parameters
+    const headers: Record<string, string> = {};
+    const queryParams: string[] = [];
+    
+    if (operation.parameters) {
+      for (const param of operation.parameters) {
+        if (param.in === 'header' && param.schema?.default) {
+          headers[param.name] = String(param.schema.default);
+        } else if (param.in === 'query' && param.schema?.default) {
+          queryParams.push(`${param.name}=${encodeURIComponent(param.schema.default)}`);
+        }
+      }
+    }
+    
+    // Add query parameters to URL
+    let finalUrl = url;
+    if (queryParams.length > 0) {
+      finalUrl += (finalUrl.includes('?') ? '&' : '?') + queryParams.join('&');
+    }
+    
+    // Extract request body
+    let body = '';
+    let bodyType = 'raw';
+    if (operation.requestBody?.content) {
+      const contentTypes = Object.keys(operation.requestBody.content);
+      const contentType = contentTypes[0]; // Use first available content type
+      
+      if (contentType) {
+        headers['Content-Type'] = contentType;
+        
+        // Generate example body based on schema
+        const mediaType = operation.requestBody.content[contentType];
+        if (mediaType.schema) {
+          body = JSON.stringify(this.generateExampleFromSchema(mediaType.schema), null, 2);
+          bodyType = contentType.includes('json') ? 'raw' : 'form';
+        }
+      }
+    }
+
+    return {
+      collection_id: collectionId,
+      name: operation.summary || operation.operationId || `${method} ${path}`,
+      description: operation.description || '',
+      method: method as HttpMethod,
+      url: finalUrl,
+      headers,
+      body,
+      body_type: bodyType,
+      follow_redirects: true,
+      timeout_ms: 30000,
+    };
+  }
+
+  /**
+   * Generate example data from OpenAPI schema
+   */
+  private generateExampleFromSchema(schema: any): any {
+    if (schema.example !== undefined) {
+      return schema.example;
+    }
+    
+    if (schema.type === 'object') {
+      const obj: any = {};
+      if (schema.properties) {
+        for (const [key, propSchema] of Object.entries(schema.properties)) {
+          obj[key] = this.generateExampleFromSchema(propSchema);
+        }
+      }
+      return obj;
+    }
+    
+    if (schema.type === 'array') {
+      if (schema.items) {
+        return [this.generateExampleFromSchema(schema.items)];
+      }
+      return [];
+    }
+    
+    switch (schema.type) {
+      case 'string':
+        return schema.enum ? schema.enum[0] : 'string';
+      case 'number':
+      case 'integer':
+        return schema.enum ? schema.enum[0] : 0;
+      case 'boolean':
+        return false;
+      default:
+        return null;
+    }
   }
 
   /**

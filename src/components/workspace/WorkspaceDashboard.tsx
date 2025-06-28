@@ -11,6 +11,7 @@ import {
 import { useWorkspaceStore } from '../../stores/workspace-store';
 import { Button, Card, CardHeader, CardBody } from '../ui';
 import { WorkspaceCreationWizard } from './WorkspaceCreationWizard';
+import { GitStatusIndicator } from './GitStatusIndicator';
 import { cn } from '../../utils/cn';
 
 interface WorkspaceDashboardProps {
@@ -227,9 +228,10 @@ export const WorkspaceDashboard: React.FC<WorkspaceDashboardProps> = ({
                         <span>{workspace.request_count} requests</span>
                       </div>
                     </div>
-                    {workspace.git_status && (
-                      <span className="text-green-500">●</span>
-                    )}
+                    <GitStatusIndicator 
+                      workspacePath={workspace.local_path}
+                      size="sm"
+                    />
                   </div>
                 </div>
               </CardBody>

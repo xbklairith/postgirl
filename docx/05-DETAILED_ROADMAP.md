@@ -530,9 +530,9 @@ src/services/tab-manager.ts          // Tab business logic
 - **Dependencies**: ARBI-015
 - **Deliverables**:
   - Enhanced Postman migration (collections + environments)
-  - Insomnia workspace migration
+  - OpenAPI specification import/export
   - cURL command import/export
-  - HAR file import
+  - Streamlined three-format support
   - Migration validation and testing
 
 **ARBI-035: CLI Tool Development**

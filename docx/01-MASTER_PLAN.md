@@ -5,7 +5,7 @@
 
 **Vision Statement:** Revolutionize API testing by creating the first Git-native platform that transforms team collaboration from tool-specific silos to standard development workflows, leveraging Tauri's performance advantages to deliver a superior developer experience.
 
-**Mission:** Replace Postman and Insomnia with a fundamentally better approach—where API collections live in Git repositories, teams collaborate through proven version control workflows, and developers own their data without vendor lock-in.
+**Mission:** Replace existing API testing tools with a fundamentally better approach—where API collections live in Git repositories, teams collaborate through proven version control workflows, and developers own their data without vendor lock-in.
 
 ---
 
@@ -96,10 +96,10 @@ Resource Efficiency       │  High CPU/Battery│  Native efficiency
 - **Weaknesses**: Vendor lock-in, performance issues, expensive enterprise plans
 - **Our Advantage**: Git workflows, data ownership, superior performance
 
-**Insomnia (Growing Alternative)**
-- **Strengths**: Better UX than Postman, Kong ecosystem integration
-- **Weaknesses**: Limited collaboration, no Git integration, smaller ecosystem
-- **Our Advantage**: Native Git workflows, team collaboration, environment management
+**Other API Testing Tools (Various Alternatives)**
+- **Strengths**: Specialized features, niche ecosystem integrations
+- **Weaknesses**: Limited collaboration, no Git integration, fragmented workflows
+- **Our Advantage**: Native Git workflows, team collaboration, unified environment management
 
 **Thunder Client/REST Client (Lightweight)**
 - **Strengths**: VS Code integration, simplicity, fast startup

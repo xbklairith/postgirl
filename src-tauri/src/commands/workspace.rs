@@ -217,7 +217,7 @@ Thumbs.db
 }
 
 // Helper function to expand tilde paths
-fn expand_tilde_path(path: &str) -> String {
+pub fn expand_tilde_path(path: &str) -> String {
     if path.starts_with("~/") {
         if let Ok(home_dir) = std::env::var("HOME") {
             return path.replacen("~", &home_dir, 1);

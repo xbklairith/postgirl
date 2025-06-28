@@ -181,7 +181,7 @@ Project Lifecycle Status:
 - **Auto-save Integration**: Updated to handle new body structure and enhanced features
 
 **Import/Export Foundation:**
-- **Service Architecture**: Complete ImportExportService with Postman/Insomnia support
+- **Service Architecture**: Complete ImportExportService with Postman/curl/OpenAPI support
 - **Type Definitions**: Comprehensive external format type definitions
 - **Conversion Logic**: Smart body type detection and conversion utilities
 
@@ -495,7 +495,7 @@ All previously identified high risks have been successfully addressed through:
 **Phase 1: Import Interface (Days 1-2)**
 1. Create ImportDialog component with file selection and preview
 2. Implement Postman collection v2.1 import UI
-3. Add Insomnia workspace import interface
+3. Add OpenAPI specification import interface
 4. Build import progress tracking and error handling
 
 **Phase 2: Export Interface (Days 2-3)**
@@ -528,13 +528,13 @@ All previously identified high risks have been successfully addressed through:
 
 **External Tool Compatibility:**
 1. Implement Postman collection import
-2. Add Insomnia workspace import
-3. Create curl command import/export
-4. Add OpenAPI specification import
+2. Create curl command import/export
+3. Add OpenAPI specification import
+4. Streamlined three-format support for maximum compatibility
 
 ### Week Deliverable Target
 - ✅ **Complete multi-request tabbed interface** with session persistence and keyboard shortcuts
-- **Import/Export UI integration** for Postman and Insomnia compatibility
+- **Import/Export UI integration** for Postman, curl, and OpenAPI compatibility
 - **Enhanced Git integration** with workspace initialization
 - **Performance optimization** and comprehensive testing coverage
 

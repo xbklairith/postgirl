@@ -6,6 +6,50 @@ export type FeatureType =
   | 'refactor'
   | 'docs';
 
+// Basic Git types
+export interface GitCredentials {
+  username: string;
+  password: string;
+  ssh_key_path?: string;
+}
+
+export interface CloneResult {
+  success: boolean;
+  path: string;
+  message: string;
+}
+
+export interface GitStatus {
+  current_branch: string;
+  is_clean: boolean;
+  staged_files: string[];
+  modified_files: string[];
+  untracked_files: string[];
+  ahead: number;
+  behind: number;
+}
+
+export interface Branch {
+  name: string;
+  is_current: boolean;
+  is_remote: boolean;
+  last_commit: string;
+  last_commit_message: string;
+}
+
+export interface GitCommit {
+  hash: string;
+  message: string;
+  author: string;
+  date: string;
+  files_changed: number;
+}
+
+export interface GitRemote {
+  name: string;
+  url: string;
+}
+
 export interface BranchPattern {
   workspace: string;
   username: string;
