@@ -1,0 +1,29 @@
+{
+  "info": {
+    "name": "Sample Test Collection",
+    "description": "Collection for E2E testing",
+    "version": "1.0.0"
+  },
+  "item": [
+    {
+      "name": "Get Test Data",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://jsonplaceholder.typicode.com/posts/1",
+          "protocol": "https",
+          "host": [
+            "jsonplaceholder",
+            "typicode",
+            "com"
+          ],
+          "path": [
+            "posts",
+            "1"
+          ]
+        }
+      }
+    }
+  ]
+}

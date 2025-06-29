@@ -3,13 +3,59 @@ import { test, expect } from '@playwright/test';
 test.describe('API Request Workflow E2E Tests', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('[data-testid="app-loaded"]');
+    await page.waitForSelector('[data-testid="app-loaded"]', { timeout: 30000 });
     
-    // Ensure we have a workspace and collection set up
-    await page.click('[data-testid="create-collection-button"]');
-    await page.fill('[data-testid="collection-name-input"]', 'E2E API Tests');
-    await page.click('text=Create Collection');
-    await page.waitForSelector('text=E2E API Tests');
+    // Wait for workspace to be initialized
+    await page.waitForLoadState('networkidle');
+    
+    // Navigate to workspaces if no active workspace
+    const noWorkspaceText = page.locator('text=No Active Workspace');
+    if (await noWorkspaceText.isVisible()) {
+      await page.click('text=Go to Workspaces');
+      await page.waitForSelector('[data-testid="create-workspace-button"]', { timeout: 10000 });
+      
+      // Create a test workspace
+      await page.click('[data-testid="create-workspace-button"]');
+      await page.waitForSelector('text=Skip Git (Local Only)', { timeout: 5000 });
+      await page.click('text=Skip Git (Local Only)');
+      
+      // Wait for the form to appear
+      await page.waitForSelector('[data-testid="workspace-name-input"]', { timeout: 5000 });
+      await page.fill('[data-testid="workspace-name-input"]', 'E2E Test Workspace');
+      
+      // Click create and wait for completion
+      await page.click('text=Create Workspace');
+      
+      // Wait for workspace creation to complete
+      await page.waitForSelector('text=E2E Test Workspace', { timeout: 10000 });
+      
+      // Force modal close if it's still blocking
+      await page.evaluate(() => {
+        const modal = document.querySelector('.fixed.inset-0');
+        if (modal) {
+          modal.remove();
+        }
+      });
+      
+      // Wait a moment for UI to stabilize
+      await page.waitForTimeout(500);
+      
+      // Ensure we're in the workspaces view and the workspace exists
+      await expect(page.locator('text=E2E Test Workspace')).toBeVisible();
+      
+      // Switch to API testing view
+      await page.click('button:has-text("API Testing")');
+      await page.waitForSelector('[data-testid="api-testing-container"]', { timeout: 5000 });
+    }
+    
+    // Ensure we have a collection set up
+    const createCollectionButton = page.locator('[data-testid="create-collection-button"]');
+    if (await createCollectionButton.isVisible()) {
+      await createCollectionButton.click();
+      await page.fill('[data-testid="collection-name-input"]', 'E2E API Tests');
+      await page.keyboard.press('Enter');
+      await page.waitForSelector('text=E2E API Tests');
+    }
   });
 
   test('should create and execute a GET request', async ({ page }) => {

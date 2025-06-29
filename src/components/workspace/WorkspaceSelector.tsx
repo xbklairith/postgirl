@@ -109,6 +109,7 @@ export const WorkspaceSelector: React.FC<WorkspaceSelectorProps> = ({
     return createPortal(
       <div 
         data-dropdown-portal="workspace"
+        data-testid="workspace-dropdown"
         className={cn(
           'fixed rounded-lg shadow-xl z-[100]',
           'bg-white/95 dark:bg-slate-800/95 backdrop-blur-lg',
@@ -154,6 +155,7 @@ export const WorkspaceSelector: React.FC<WorkspaceSelectorProps> = ({
                     'hover:bg-slate-100/60 dark:hover:bg-slate-700/60',
                     workspace.is_active && 'bg-primary-50/60 dark:bg-primary-900/20 ring-1 ring-primary-200/50 dark:ring-primary-700/50'
                   )}
+                  data-testid="workspace-option"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex-1 min-w-0">
@@ -197,10 +199,11 @@ export const WorkspaceSelector: React.FC<WorkspaceSelectorProps> = ({
         onClick={() => setIsOpen(!isOpen)}
         className="w-full justify-between"
         disabled={isLoading}
+        data-testid="workspace-selector"
       >
         <div className="flex items-center space-x-2">
           <FolderIcon className="w-4 h-4" />
-          <span className="truncate">
+          <span className="truncate" data-testid="active-workspace-name">
             {activeWorkspace?.name || 'Select Workspace'}
           </span>
         </div>

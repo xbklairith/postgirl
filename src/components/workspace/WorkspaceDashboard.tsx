@@ -91,14 +91,25 @@ export const WorkspaceDashboard: React.FC<WorkspaceDashboardProps> = ({
             Manage your API testing environments
           </p>
         </div>
-        <Button 
-          variant="primary" 
-          onClick={() => setShowCreateWizard(true)}
-          className="flex items-center space-x-2"
-        >
-          <PlusIcon className="w-4 h-4" />
-          <span>New Workspace</span>
-        </Button>
+        <div className="flex items-center space-x-3">
+          <Button 
+            variant="ghost" 
+            onClick={() => {/* TODO: Implement manage workspaces view */}}
+            className="flex items-center space-x-2"
+            data-testid="manage-workspaces-button"
+          >
+            <span>Manage</span>
+          </Button>
+          <Button 
+            variant="primary" 
+            onClick={() => setShowCreateWizard(true)}
+            className="flex items-center space-x-2"
+            data-testid="create-workspace-button"
+          >
+            <PlusIcon className="w-4 h-4" />
+            <span>New Workspace</span>
+          </Button>
+        </div>
       </div>
 
       {/* Error Display */}
@@ -137,6 +148,7 @@ export const WorkspaceDashboard: React.FC<WorkspaceDashboardProps> = ({
                 variant="primary" 
                 onClick={() => setShowCreateWizard(true)}
                 className="flex items-center space-x-2"
+                data-testid="create-workspace-button"
               >
                 <PlusIcon className="w-4 h-4" />
                 <span>Create Your First Workspace</span>
@@ -157,6 +169,7 @@ export const WorkspaceDashboard: React.FC<WorkspaceDashboardProps> = ({
                 workspace.is_active && 'ring-2 ring-primary-500 bg-primary-50 dark:bg-primary-900/20'
               )}
               onClick={() => handleWorkspaceSelect(workspace.id)}
+              data-testid="workspace-option"
             >
               <CardHeader>
                 <div className="flex items-start justify-between">
@@ -183,6 +196,7 @@ export const WorkspaceDashboard: React.FC<WorkspaceDashboardProps> = ({
                         // TODO: Open workspace settings
                       }}
                       className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                      data-testid="workspace-settings-button"
                     >
                       <Cog6ToothIcon className="w-4 h-4" />
                     </button>
@@ -192,6 +206,7 @@ export const WorkspaceDashboard: React.FC<WorkspaceDashboardProps> = ({
                         setDeleteConfirm(workspace.id);
                       }}
                       className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-600 dark:hover:text-red-400"
+                      data-testid="workspace-menu-button"
                     >
                       <TrashIcon className="w-4 h-4" />
                     </button>
@@ -266,6 +281,17 @@ export const WorkspaceDashboard: React.FC<WorkspaceDashboardProps> = ({
                 <p className="text-slate-700 dark:text-slate-300 mt-2 text-sm">
                   This will permanently remove all workspace data and cannot be recovered.
                 </p>
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    Type "DELETE" to confirm:
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                    placeholder="Type DELETE to confirm"
+                    data-testid="delete-confirmation-input"
+                  />
+                </div>
               </div>
               
               <div className="flex justify-end space-x-3">
@@ -279,6 +305,7 @@ export const WorkspaceDashboard: React.FC<WorkspaceDashboardProps> = ({
                 <Button 
                   onClick={() => handleDeleteWorkspace(deleteConfirm)}
                   className="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800"
+                  data-testid="confirm-delete-button"
                 >
                   Delete Workspace
                 </Button>
@@ -291,10 +318,26 @@ export const WorkspaceDashboard: React.FC<WorkspaceDashboardProps> = ({
       {/* Creation Wizard */}
       <WorkspaceCreationWizard
         isOpen={showCreateWizard}
-        onClose={() => setShowCreateWizard(false)}
-        onSuccess={(workspaceId) => {
+        onClose={() => {
+          console.log('[WorkspaceDashboard] onClose called, setting showCreateWizard to false');
           setShowCreateWizard(false);
-          handleWorkspaceSelect(workspaceId);
+        }}
+        onSuccess={async (workspaceId) => {
+          console.log('[WorkspaceDashboard] onSuccess called with workspaceId:', workspaceId);
+          
+          // Force close modal immediately
+          setShowCreateWizard(false);
+          
+          // Small delay to ensure modal state updates
+          await new Promise(resolve => setTimeout(resolve, 200));
+          
+          // Then handle workspace selection
+          try {
+            await handleWorkspaceSelect(workspaceId);
+            console.log('[WorkspaceDashboard] Workspace selection completed');
+          } catch (error) {
+            console.error('[WorkspaceDashboard] Workspace selection failed:', error);
+          }
         }}
       />
     </div>

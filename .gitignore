@@ -56,3 +56,16 @@ sqlite:*/
 # Build
 build/
 dist/
+
+# Test Results and Artifacts
+test-results/
+playwright-report/
+coverage/
+E2E_*.md
+DEBUG.md
+CLAUDE_COMMANDS.md
+
+# Temporary test files
+*-test-workspace/
+e2e-test-*
+mock-workspace-*

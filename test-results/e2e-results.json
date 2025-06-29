@@ -9,9 +9,9 @@
     "globalTimeout": 0,
     "grep": {},
     "grepInvert": null,
-    "maxFailures": 3,
+    "maxFailures": 0,
     "metadata": {
-      "actualWorkers": 4
+      "actualWorkers": 1
     },
     "preserveOutput": "always",
     "reporter": [
@@ -37,7 +37,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 4
+          "actualWorkers": 1
         },
         "id": "chromium",
         "name": "chromium",
@@ -53,7 +53,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 4
+          "actualWorkers": 1
         },
         "id": "firefox",
         "name": "firefox",
@@ -69,7 +69,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 4
+          "actualWorkers": 1
         },
         "id": "webkit",
         "name": "webkit",
@@ -85,7 +85,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 4
+          "actualWorkers": 1
         },
         "id": "Mobile Chrome",
         "name": "Mobile Chrome",
@@ -101,7 +101,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 4
+          "actualWorkers": 1
         },
         "id": "Mobile Safari",
         "name": "Mobile Safari",
@@ -117,7 +117,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 4
+          "actualWorkers": 1
         },
         "id": "Microsoft Edge",
         "name": "Microsoft Edge",
@@ -133,7 +133,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 4
+          "actualWorkers": 1
         },
         "id": "Google Chrome",
         "name": "Google Chrome",
@@ -159,20 +159,20 @@
   },
   "suites": [
     {
-      "title": "workspace-management.spec.ts",
-      "file": "workspace-management.spec.ts",
+      "title": "api-request-workflow.spec.ts",
+      "file": "api-request-workflow.spec.ts",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "Workspace Management E2E Tests",
-          "file": "workspace-management.spec.ts",
+          "title": "API Request Workflow E2E Tests",
+          "file": "api-request-workflow.spec.ts",
           "line": 3,
           "column": 6,
           "specs": [
             {
-              "title": "should create a new local workspace",
+              "title": "should create and execute a GET request",
               "ok": false,
               "tags": [],
               "tests": [
@@ -186,266 +186,71 @@
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 54737,
+                      "status": "timedOut",
+                      "duration": 61472,
                       "error": {
-                        "message": "Error: page.click: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"create-workspace-button\"]')\u001b[22m\n",
-                        "stack": "Error: page.click: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"create-workspace-button\"]')\u001b[22m\n\n    at /Users/xb/table/postgirl/tests/e2e/workspace-management.spec.ts:14:16",
+                        "message": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at /Users/xb/table/postgirl/tests/e2e/api-request-workflow.spec.ts:4:8",
                         "location": {
-                          "file": "/Users/xb/table/postgirl/tests/e2e/workspace-management.spec.ts",
-                          "column": 16,
-                          "line": 14
+                          "file": "/Users/xb/table/postgirl/tests/e2e/api-request-workflow.spec.ts",
+                          "column": 8,
+                          "line": 4
                         },
-                        "snippet": "  12 |   test('should create a new local workspace', async ({ page }) => {\n  13 |     // Open workspace creation wizard\n> 14 |     await page.click('[data-testid=\"create-workspace-button\"]');\n     |                ^\n  15 |     \n  16 |     // Should show the workspace creation wizard\n  17 |     await expect(page.locator('text=Create New Workspace')).toBeVisible();"
+                        "snippet": "  2 |\n  3 | test.describe('API Request Workflow E2E Tests', () => {\n> 4 |   test.beforeEach(async ({ page }) => {\n    |        ^\n  5 |     await page.goto('/');\n  6 |     await page.waitForSelector('[data-testid=\"app-loaded\"]', { timeout: 30000 });\n  7 |     "
                       },
                       "errors": [
                         {
                           "location": {
-                            "file": "/Users/xb/table/postgirl/tests/e2e/workspace-management.spec.ts",
-                            "column": 16,
-                            "line": 14
+                            "file": "/Users/xb/table/postgirl/tests/e2e/api-request-workflow.spec.ts",
+                            "column": 8,
+                            "line": 4
                           },
-                          "message": "Error: page.click: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"create-workspace-button\"]')\u001b[22m\n\n\n  12 |   test('should create a new local workspace', async ({ page }) => {\n  13 |     // Open workspace creation wizard\n> 14 |     await page.click('[data-testid=\"create-workspace-button\"]');\n     |                ^\n  15 |     \n  16 |     // Should show the workspace creation wizard\n  17 |     await expect(page.locator('text=Create New Workspace')).toBeVisible();\n    at /Users/xb/table/postgirl/tests/e2e/workspace-management.spec.ts:14:16"
+                          "message": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n  2 |\n  3 | test.describe('API Request Workflow E2E Tests', () => {\n> 4 |   test.beforeEach(async ({ page }) => {\n    |        ^\n  5 |     await page.goto('/');\n  6 |     await page.waitForSelector('[data-testid=\"app-loaded\"]', { timeout: 30000 });\n  7 |     \n    at /Users/xb/table/postgirl/tests/e2e/api-request-workflow.spec.ts:4:8"
                         },
                         {
-                          "message": "Error: browserContext._wrapApiCall: Target page, context or browser has been closed"
+                          "location": {
+                            "file": "/Users/xb/table/postgirl/tests/e2e/api-request-workflow.spec.ts",
+                            "column": 18,
+                            "line": 39
+                          },
+                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"API Testing\")')\u001b[22m\n\u001b[2m    - locator resolved to <button class=\"btn btn-ghost px-4 py-2 text-sm\">API Testing</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    112 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m        - element is visible, enabled and stable\u001b[22m\n\u001b[2m        - scrolling into view if needed\u001b[22m\n\u001b[2m        - done scrolling\u001b[22m\n\u001b[2m        - <div class=\"fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m      - retrying click action\u001b[22m\n\u001b[2m        - waiting 500ms\u001b[22m\n\n\n  37 |       \n  38 |       // Switch to API testing view\n> 39 |       await page.click('button:has-text(\"API Testing\")');\n     |                  ^\n  40 |       await page.waitForSelector('[data-testid=\"api-testing-container\"]', { timeout: 5000 });\n  41 |     }\n  42 |     \n    at /Users/xb/table/postgirl/tests/e2e/api-request-workflow.spec.ts:39:18"
                         }
                       ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-06-28T12:28:50.714Z",
+                      "startTime": "2025-06-29T04:12:04.418Z",
                       "annotations": [],
-                      "attachments": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/xb/table/postgirl/test-results/e2e-artifacts/api-request-workflow-API-R-49142-e-and-execute-a-GET-request-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/xb/table/postgirl/test-results/e2e-artifacts/api-request-workflow-API-R-49142-e-and-execute-a-GET-request-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/xb/table/postgirl/test-results/e2e-artifacts/api-request-workflow-API-R-49142-e-and-execute-a-GET-request-chromium/error-context.md"
+                        }
+                      ],
                       "errorLocation": {
-                        "file": "/Users/xb/table/postgirl/tests/e2e/workspace-management.spec.ts",
-                        "column": 16,
-                        "line": 14
+                        "file": "/Users/xb/table/postgirl/tests/e2e/api-request-workflow.spec.ts",
+                        "column": 8,
+                        "line": 4
                       }
                     }
                   ],
                   "status": "unexpected"
                 }
               ],
-              "id": "86b7e7859961f373d1a0-79519452894c03a0bf4f",
-              "file": "workspace-management.spec.ts",
-              "line": 12,
-              "column": 3
-            },
-            {
-              "title": "should create a Git-connected workspace",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 1,
-                      "parallelIndex": 1,
-                      "status": "interrupted",
-                      "duration": 54748,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-06-28T12:28:50.715Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "skipped"
-                }
-              ],
-              "id": "86b7e7859961f373d1a0-22bd9c366322ca065094",
-              "file": "workspace-management.spec.ts",
-              "line": 39,
-              "column": 3
-            },
-            {
-              "title": "should switch between workspaces",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 2,
-                      "parallelIndex": 2,
-                      "status": "failed",
-                      "duration": 54744,
-                      "error": {
-                        "message": "Error: page.click: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"workspace-selector\"]')\u001b[22m\n",
-                        "stack": "Error: page.click: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"workspace-selector\"]')\u001b[22m\n\n    at /Users/xb/table/postgirl/tests/e2e/workspace-management.spec.ts:68:16",
-                        "location": {
-                          "file": "/Users/xb/table/postgirl/tests/e2e/workspace-management.spec.ts",
-                          "column": 16,
-                          "line": 68
-                        },
-                        "snippet": "  66 |   test('should switch between workspaces', async ({ page }) => {\n  67 |     // Assuming we have multiple workspaces, switch between them\n> 68 |     await page.click('[data-testid=\"workspace-selector\"]');\n     |                ^\n  69 |     \n  70 |     // Should show workspace dropdown\n  71 |     await expect(page.locator('[data-testid=\"workspace-dropdown\"]')).toBeVisible();"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "/Users/xb/table/postgirl/tests/e2e/workspace-management.spec.ts",
-                            "column": 16,
-                            "line": 68
-                          },
-                          "message": "Error: page.click: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"workspace-selector\"]')\u001b[22m\n\n\n  66 |   test('should switch between workspaces', async ({ page }) => {\n  67 |     // Assuming we have multiple workspaces, switch between them\n> 68 |     await page.click('[data-testid=\"workspace-selector\"]');\n     |                ^\n  69 |     \n  70 |     // Should show workspace dropdown\n  71 |     await expect(page.locator('[data-testid=\"workspace-dropdown\"]')).toBeVisible();\n    at /Users/xb/table/postgirl/tests/e2e/workspace-management.spec.ts:68:16"
-                        },
-                        {
-                          "message": "Error: browserContext._wrapApiCall: Target page, context or browser has been closed"
-                        }
-                      ],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-06-28T12:28:50.711Z",
-                      "annotations": [],
-                      "attachments": [],
-                      "errorLocation": {
-                        "file": "/Users/xb/table/postgirl/tests/e2e/workspace-management.spec.ts",
-                        "column": 16,
-                        "line": 68
-                      }
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "86b7e7859961f373d1a0-60252df740df3f223028",
-              "file": "workspace-management.spec.ts",
-              "line": 66,
-              "column": 3
-            },
-            {
-              "title": "should manage workspace settings",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 3,
-                      "parallelIndex": 3,
-                      "status": "failed",
-                      "duration": 54750,
-                      "error": {
-                        "message": "Error: page.click: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"workspace-settings-button\"]')\u001b[22m\n",
-                        "stack": "Error: page.click: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"workspace-settings-button\"]')\u001b[22m\n\n    at /Users/xb/table/postgirl/tests/e2e/workspace-management.spec.ts:82:16",
-                        "location": {
-                          "file": "/Users/xb/table/postgirl/tests/e2e/workspace-management.spec.ts",
-                          "column": 16,
-                          "line": 82
-                        },
-                        "snippet": "  80 |   test('should manage workspace settings', async ({ page }) => {\n  81 |     // Open workspace settings\n> 82 |     await page.click('[data-testid=\"workspace-settings-button\"]');\n     |                ^\n  83 |     \n  84 |     // Should show settings modal\n  85 |     await expect(page.locator('text=Workspace Settings')).toBeVisible();"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "/Users/xb/table/postgirl/tests/e2e/workspace-management.spec.ts",
-                            "column": 16,
-                            "line": 82
-                          },
-                          "message": "Error: page.click: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"workspace-settings-button\"]')\u001b[22m\n\n\n  80 |   test('should manage workspace settings', async ({ page }) => {\n  81 |     // Open workspace settings\n> 82 |     await page.click('[data-testid=\"workspace-settings-button\"]');\n     |                ^\n  83 |     \n  84 |     // Should show settings modal\n  85 |     await expect(page.locator('text=Workspace Settings')).toBeVisible();\n    at /Users/xb/table/postgirl/tests/e2e/workspace-management.spec.ts:82:16"
-                        },
-                        {
-                          "message": "Error: browserContext._wrapApiCall: Target page, context or browser has been closed"
-                        }
-                      ],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-06-28T12:28:50.726Z",
-                      "annotations": [],
-                      "attachments": [],
-                      "errorLocation": {
-                        "file": "/Users/xb/table/postgirl/tests/e2e/workspace-management.spec.ts",
-                        "column": 16,
-                        "line": 82
-                      }
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "86b7e7859961f373d1a0-60a6940830da753329d0",
-              "file": "workspace-management.spec.ts",
-              "line": 80,
-              "column": 3
-            },
-            {
-              "title": "should delete a workspace",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "86b7e7859961f373d1a0-3fec3a248e2fb8b77538",
-              "file": "workspace-management.spec.ts",
-              "line": 98,
-              "column": 3
-            },
-            {
-              "title": "should handle workspace creation errors",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "86b7e7859961f373d1a0-289c207cfc18e8e3f78a",
-              "file": "workspace-management.spec.ts",
-              "line": 117,
-              "column": 3
-            },
-            {
-              "title": "should persist workspace selection across app restarts",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "86b7e7859961f373d1a0-9f4c99520c565c4e85b9",
-              "file": "workspace-management.spec.ts",
-              "line": 138,
+              "id": "8680eacf4d73b5cfaad6-d725b95bce33894f2cca",
+              "file": "api-request-workflow.spec.ts",
+              "line": 53,
               "column": 3
             }
           ]
@@ -453,17 +258,13 @@
       ]
     }
   ],
-  "errors": [
-    {
-      "message": "\u001b[31mTesting stopped early after 3 maximum allowed failures.\u001b[39m"
-    }
-  ],
+  "errors": [],
   "stats": {
-    "startTime": "2025-06-28T12:28:46.116Z",
-    "duration": 59533.779,
+    "startTime": "2025-06-29T04:11:59.009Z",
+    "duration": 67029.393,
     "expected": 0,
-    "skipped": 4,
-    "unexpected": 3,
+    "skipped": 0,
+    "unexpected": 1,
     "flaky": 0
   }
 }

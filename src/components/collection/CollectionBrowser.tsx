@@ -405,7 +405,7 @@ export const CollectionBrowser: React.FC<CollectionBrowserProps> = ({
             onClick={handleCreateCollection}
             disabled={isCreatingCollection}
             className="flex items-center space-x-1"
-            data-testid="new-collection-button"
+            data-testid="create-collection-button"
           >
             <PlusIcon className="w-4 h-4" />
             <span>New</span>

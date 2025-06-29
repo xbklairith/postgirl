@@ -222,6 +222,7 @@ export const TabBar: React.FC<TabBarProps> = ({ className = '' }) => {
         onClick={() => handleTabClick(tab.id)}
         onContextMenu={(e) => handleContextMenu(e, tab)}
         style={{ width: '120px' }}
+        data-testid="request-tab"
       >
         {/* Pin indicator */}
         {tab.isPinned && (
@@ -248,6 +249,7 @@ export const TabBar: React.FC<TabBarProps> = ({ className = '' }) => {
           className="flex-shrink-0 p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-600 opacity-0 group-hover:opacity-100 transition-opacity"
           onClick={(e) => handleTabClose(e, tab.id)}
           title="Close tab"
+          data-testid="close-tab-button"
         >
           <XMarkIcon className="w-3 h-3" />
         </button>
@@ -262,6 +264,7 @@ export const TabBar: React.FC<TabBarProps> = ({ className = '' }) => {
           onClick={handleNewTab}
           className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           title="New tab (Ctrl+T)"
+          data-testid="new-request-button"
         >
           <PlusIcon className="w-4 h-4" />
           <span>New Tab</span>
@@ -321,6 +324,7 @@ export const TabBar: React.FC<TabBarProps> = ({ className = '' }) => {
         onClick={handleNewTab}
         className="flex-shrink-0 flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors border-l border-gray-200 dark:border-gray-700"
         title="New tab (Ctrl+T)"
+        data-testid="new-request-button"
       >
         <PlusIcon className="w-4 h-4" />
       </button>

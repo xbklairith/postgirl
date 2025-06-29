@@ -146,11 +146,18 @@ export const WorkspaceCreationWizard: React.FC<WorkspaceCreationWizardProps> = (
   const handleSubmit = async () => {
     if (!validateStep2()) return;
     
+    console.log('[WorkspaceCreationWizard] handleSubmit called, formData:', formData);
+    
     try {
       const shouldInitGit = WorkspaceGitIntegration.shouldInitializeGit(formData) && formData.initializeGit;
       
+      console.log('[WorkspaceCreationWizard] shouldInitGit:', shouldInitGit);
+      
+      let workspaceId: string;
+      
       if (shouldInitGit) {
         // Use Git integration service for workspace creation with Git
+        console.log('[WorkspaceCreationWizard] Creating workspace with Git...');
         const result = await WorkspaceGitIntegration.createWorkspaceWithGit({
           ...formData,
           description: formData.description || undefined,
@@ -162,9 +169,11 @@ export const WorkspaceCreationWizard: React.FC<WorkspaceCreationWizardProps> = (
           console.warn('Git initialization failed:', result.gitResult.message);
         }
         
-        onSuccess?.(result.workspace.id);
+        workspaceId = result.workspace.id;
+        console.log('[WorkspaceCreationWizard] Workspace created with Git, id:', workspaceId);
       } else {
         // Use regular workspace creation
+        console.log('[WorkspaceCreationWizard] Creating regular workspace...');
         const workspace = await createWorkspace({
           name: formData.name,
           description: formData.description || undefined,
@@ -172,10 +181,34 @@ export const WorkspaceCreationWizard: React.FC<WorkspaceCreationWizardProps> = (
           local_path: formData.local_path,
         });
         
-        onSuccess?.(workspace.id);
+        workspaceId = workspace.id;
+        console.log('[WorkspaceCreationWizard] Workspace created, id:', workspaceId);
       }
       
-      handleClose();
+      // Reset the wizard state immediately
+      console.log('[WorkspaceCreationWizard] Resetting wizard state...');
+      setStep(1);
+      setFormData({
+        name: '',
+        description: '',
+        git_repository_url: '',
+        local_path: '',
+        initializeGit: false,
+        gitConfig: {
+          userName: '',
+          userEmail: '',
+        },
+      });
+      setErrors({});
+      setDirectoryExists(false);
+      setCheckingDirectory(false);
+      
+      // Use setTimeout to ensure the state updates are processed
+      setTimeout(() => {
+        console.log('[WorkspaceCreationWizard] Calling onSuccess with:', workspaceId);
+        onSuccess?.(workspaceId);
+      }, 100);
+      
     } catch (error) {
       // Error is handled by the store or thrown by WorkspaceGitIntegration
       console.error('Workspace creation failed:', error);
@@ -350,6 +383,7 @@ export const WorkspaceCreationWizard: React.FC<WorkspaceCreationWizardProps> = (
               onChange={(e) => handleInputChange('git_repository_url', e.target.value)}
               error={errors.git_repository_url}
               leftIcon={<LinkIcon className="w-4 h-4" />}
+              data-testid="git-url-input"
             />
 
             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
@@ -407,6 +441,7 @@ export const WorkspaceCreationWizard: React.FC<WorkspaceCreationWizardProps> = (
               onChange={(e) => handleInputChange('name', e.target.value)}
               error={errors.name}
               leftIcon={<FolderIcon className="w-4 h-4" />}
+              data-testid="workspace-name-input"
             />
 
             <Input
@@ -416,6 +451,7 @@ export const WorkspaceCreationWizard: React.FC<WorkspaceCreationWizardProps> = (
               onChange={(e) => handleInputChange('description', e.target.value)}
               error={errors.description}
               leftIcon={<DocumentTextIcon className="w-4 h-4" />}
+              data-testid="workspace-description-input"
             />
 
             <div className="relative">
@@ -426,6 +462,7 @@ export const WorkspaceCreationWizard: React.FC<WorkspaceCreationWizardProps> = (
                 onChange={(e) => handleInputChange('local_path', e.target.value)}
                 error={errors.local_path}
                 leftIcon={<FolderIcon className="w-4 h-4" />}
+                data-testid="workspace-path-input"
               />
               {checkingDirectory && (
                 <div className="absolute right-3 top-9 flex items-center">

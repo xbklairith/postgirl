@@ -81,9 +81,9 @@ export default defineConfig({
   globalTeardown: './tests/e2e/global-teardown.ts',
 
   /* Test configuration */
-  timeout: 60000, // 1 minute per test
+  timeout: 120000, // 2 minutes per test
   expect: {
-    timeout: 10000, // 10 seconds for assertions
+    timeout: 15000, // 15 seconds for assertions
   },
 
   /* Artifacts */

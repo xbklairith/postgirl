@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button, Input, Modal } from "./components/ui";
-import { WorkspaceDashboard } from "./components/workspace";
+import { WorkspaceDashboard, WorkspaceSelector } from "./components/workspace";
 import { HttpRequestForm } from "./components/http";
 import { EnvironmentManagement } from "./components/environment/EnvironmentManagement";
 import { CollectionBrowser } from "./components/collection";
@@ -10,6 +10,8 @@ import { useRequestTabStore } from "./stores/request-tab-store";
 import { tabManager } from "./services/tab-manager";
 import { useTheme } from "./hooks/use-theme";
 import { useTabShortcuts } from "./hooks/use-tab-shortcuts";
+
+// Tauri mock is now initialized in index.html before React loads
 
 function App() {
   const [currentView, setCurrentView] = useState<'workspaces' | 'api-testing' | 'environments'>('api-testing');
@@ -90,6 +92,10 @@ function App() {
         </div>
         
         <div className="flex items-center space-x-3">
+          <div className="w-48">
+            <WorkspaceSelector onCreateNew={() => setCurrentView('workspaces')} />
+          </div>
+          <div className="h-6 w-px bg-slate-200 dark:bg-slate-600"></div>
           <Button 
             variant={currentView === 'workspaces' ? 'primary' : 'ghost'} 
             onClick={() => setCurrentView('workspaces')}

@@ -81,19 +81,23 @@ async function globalSetup(config: FullConfig) {
   const page = await browser.newPage();
   
   let retries = 0;
-  const maxRetries = 30; // 30 seconds
+  const maxRetries = 60; // 2 minutes for Tauri app startup
   
   while (retries < maxRetries) {
     try {
-      await page.goto('http://localhost:1420', { timeout: 5000 });
-      const title = await page.title();
-      if (title) {
-        console.log('Development server is ready!');
-        break;
-      }
+      await page.goto('http://localhost:1420', { timeout: 10000 });
+      
+      // Wait for the app to be loaded
+      await page.waitForSelector('[data-testid="app-loaded"]', { timeout: 10000 });
+      
+      // Wait for any initial loading to complete
+      await page.waitForLoadState('networkidle');
+      
+      console.log('Development server and application are ready!');
+      break;
     } catch (error) {
-      console.log(`Waiting for server... (${retries + 1}/${maxRetries})`);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log(`Waiting for server and app... (${retries + 1}/${maxRetries})`);
+      await new Promise(resolve => setTimeout(resolve, 2000));
       retries++;
     }
   }
