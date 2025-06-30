@@ -53,7 +53,7 @@ export const TabBar: React.FC<TabBarProps> = ({ className = '' }) => {
     const scrollButtonWidth = 32;
     const padding = 20;
     const minTabWidth = 120;
-    const totalTabsWidth = tabs.length * minTabWidth;
+    const totalTabsWidth = tabsContainerRef.current?.scrollWidth || tabs.length * minTabWidth;
     
     // Available width for tabs
     const availableWidth = containerWidth - newTabButtonWidth - padding;
@@ -159,9 +159,9 @@ export const TabBar: React.FC<TabBarProps> = ({ className = '' }) => {
     
     // Update scroll buttons immediately for better UX
     setTimeout(() => {
-      if (tabBarRef.current) {
+      if (tabBarRef.current && tabsContainerRef.current) {
         const containerWidth = tabBarRef.current.offsetWidth;
-        const totalTabsWidth = tabs.length * minTabWidth;
+        const totalTabsWidth = tabsContainerRef.current.scrollWidth || tabs.length * minTabWidth;
         const availableWidth = containerWidth - 50 - 20 - 64; // new tab + padding + scroll buttons
         const maxScrollOffset = Math.max(0, totalTabsWidth - availableWidth);
         
@@ -180,9 +180,9 @@ export const TabBar: React.FC<TabBarProps> = ({ className = '' }) => {
     
     // Update scroll buttons immediately for better UX
     setTimeout(() => {
-      if (tabBarRef.current) {
+      if (tabBarRef.current && tabsContainerRef.current) {
         const containerWidth = tabBarRef.current.offsetWidth;
-        const totalTabsWidth = tabs.length * minTabWidth;
+        const totalTabsWidth = tabsContainerRef.current.scrollWidth || tabs.length * minTabWidth;
         const availableWidth = containerWidth - 50 - 20 - 64; // new tab + padding + scroll buttons
         const maxScrollOffset = Math.max(0, totalTabsWidth - availableWidth);
         
@@ -276,7 +276,7 @@ export const TabBar: React.FC<TabBarProps> = ({ className = '' }) => {
   return (
     <div 
       ref={tabBarRef}
-      className={`flex items-center border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 overflow-hidden ${className}`}
+      className={`flex items-center border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 overflow-hidden w-full max-w-full ${className}`}
     >
       {/* Left scroll button */}
       {canScrollLeft && (
@@ -296,7 +296,8 @@ export const TabBar: React.FC<TabBarProps> = ({ className = '' }) => {
           className="flex transition-transform duration-200 ease-out"
           style={{ 
             transform: `translateX(-${scrollOffset}px)`,
-            width: `${tabs.length * 120}px`, // minTabWidth * tab count
+            width: 'max-content', // Let tabs flow naturally without forcing expansion
+            maxWidth: 'none', // Don't constrain max width of tab content
             willChange: 'transform' // Optimize for transforms
           }}
         >

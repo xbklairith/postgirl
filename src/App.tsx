@@ -5,6 +5,7 @@ import { HttpRequestForm } from "./components/http";
 import { EnvironmentManagement } from "./components/environment/EnvironmentManagement";
 import { CollectionBrowser } from "./components/collection";
 import { TabBar } from "./components/tabs/TabBar";
+import { Sidebar } from "./components/navigation";
 import { useWorkspaceInitialization, useWorkspaceStore } from "./stores/workspace-store";
 import { useRequestTabStore } from "./stores/request-tab-store";
 import { tabManager } from "./services/tab-manager";
@@ -15,6 +16,7 @@ import { useTabShortcuts } from "./hooks/use-tab-shortcuts";
 
 function App() {
   const [currentView, setCurrentView] = useState<'workspaces' | 'api-testing' | 'environments'>('api-testing');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { currentTheme, toggleTheme } = useTheme();
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [requestCollectionId, setRequestCollectionId] = useState<string | null>(null);
@@ -76,64 +78,56 @@ function App() {
   };
 
   return (
-    <div className="h-screen flex flex-col py-4 px-2" data-testid="app-loaded">
+    <div className="h-screen flex flex-col" data-testid="app-loaded">
       {/* Header */}
-      <div className="header flex-shrink-0">
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-secondary-500"></div>
-            <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">
-              Postgirl
-            </h1>
+      <div className="header flex-shrink-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 px-4 py-3">
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-secondary-500"></div>
+              <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+                Postgirl
+              </h1>
+            </div>
+            <span className="text-sm text-slate-500 dark:text-slate-400">
+              Git-based API Testing Platform
+            </span>
           </div>
-          <span className="text-sm text-slate-500 dark:text-slate-400">
-            Git-based API Testing Platform
-          </span>
-        </div>
-        
-        <div className="flex items-center space-x-3">
-          <div className="w-48">
-            <WorkspaceSelector onCreateNew={() => setCurrentView('workspaces')} />
+          
+          <div className="flex items-center ml-auto mr-0">
+            <WorkspaceSelector onCreateNew={() => setCurrentView('workspaces')} className="w-64" />
           </div>
-          <div className="h-6 w-px bg-slate-200 dark:bg-slate-600"></div>
-          <Button 
-            variant={currentView === 'workspaces' ? 'primary' : 'ghost'} 
-            onClick={() => setCurrentView('workspaces')}
-          >
-            Workspaces
-          </Button>
-          <Button 
-            variant={currentView === 'api-testing' ? 'primary' : 'ghost'} 
-            onClick={() => setCurrentView('api-testing')}
-          >
-            API Testing
-          </Button>
-          <Button 
-            variant={currentView === 'environments' ? 'primary' : 'ghost'} 
-            onClick={() => setCurrentView('environments')}
-          >
-            Environments
-          </Button>
-          <Button variant="ghost" onClick={toggleTheme}>
-            {currentTheme === 'dark' ? '🌙' : '☀️'}
-          </Button>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-h-0 mt-6">
+      {/* Main Layout */}
+      <div className="flex-1 flex min-h-0 overflow-hidden">
+        {/* Sidebar */}
+        <Sidebar
+          currentView={currentView}
+          onViewChange={setCurrentView}
+          onThemeToggle={toggleTheme}
+          currentTheme={currentTheme}
+          isCollapsed={sidebarCollapsed}
+          onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+        />
+
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col min-h-0">
         {currentView === 'workspaces' && (
-          <WorkspaceDashboard 
-            onWorkspaceSelect={() => {
-              // Navigate to selected workspace
-            }}
-          />
+          <div className="flex-1 p-6">
+            <WorkspaceDashboard 
+              onWorkspaceSelect={() => {
+                // Navigate to selected workspace
+              }}
+            />
+          </div>
         )}
 
         {currentView === 'api-testing' && (
           <div id="api-testing-view" className="flex-1 flex flex-col min-h-0" data-testid="api-testing-container">
             {activeWorkspace ? (
-              <div id="api-testing-main" className="flex-1 flex min-h-0 min-w-0 w-full max-w-full bg-white dark:bg-slate-900" data-layout="two-column">
+              <div id="api-testing-main" className="flex-1 flex min-h-0 min-w-0 w-full max-w-full bg-white dark:bg-slate-900 overflow-hidden" data-layout="two-column">
                 {/* Collections Sidebar */}
                 <div id="collections-sidebar" className="w-80 flex-shrink-0 border-r border-slate-200/60 dark:border-slate-600/60 bg-slate-50/30 dark:bg-slate-800/30" data-testid="collections-sidebar">
                   <CollectionBrowser 
@@ -161,9 +155,9 @@ function App() {
                 </div>
                 
                 {/* Tab-based Request Area */}
-                <div id="request-crafting-area" className="flex-1 flex flex-col min-h-0 min-w-0 bg-white dark:bg-slate-900" data-testid="main-content-area">
+                <div id="request-crafting-area" className="flex-1 flex flex-col min-h-0 min-w-0 w-0 bg-white dark:bg-slate-900 overflow-hidden" data-testid="main-content-area">
                   {/* Tab Bar */}
-                  <div className="flex-shrink-0">
+                  <div className="flex-shrink-0 w-full">
                     <TabBar />
                   </div>
                   
@@ -233,7 +227,7 @@ function App() {
         )}
 
         {currentView === 'environments' && (
-          <div className="flex-1 flex flex-col min-h-0 p-6">
+          <div className="flex-1 p-6">
             {activeWorkspace ? (
               <EnvironmentManagement 
                 workspaceId={activeWorkspace.id}
@@ -263,10 +257,8 @@ function App() {
             )}
           </div>
         )}
-
-
+        </div>
       </div>
-
 
       {/* Request Creation Modal */}
       <Modal

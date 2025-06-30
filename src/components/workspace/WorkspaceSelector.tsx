@@ -57,10 +57,17 @@ export const WorkspaceSelector: React.FC<WorkspaceSelectorProps> = ({
           top = window.innerHeight + window.scrollY - dropdownHeight - 8;
         }
         
+        // Make dropdown wider than button for better readability
+        const dropdownWidth = Math.max(320, rect.width * 1.25); // At least 320px or 25% wider than button
+        
+        // Align dropdown to the right edge of the button
+        const rightAlignedLeft = rect.right + window.scrollX - dropdownWidth;
+        const finalLeft = Math.max(8, Math.min(rightAlignedLeft, window.innerWidth - dropdownWidth - 8));
+        
         setDropdownPosition({
           top,
-          left: Math.max(8, Math.min(rect.left + window.scrollX, window.innerWidth - rect.width - 8)),
-          width: rect.width,
+          left: finalLeft,
+          width: dropdownWidth,
           openUpward: shouldOpenUpward
         });
       }
@@ -176,8 +183,8 @@ export const WorkspaceSelector: React.FC<WorkspaceSelectorProps> = ({
                         </p>
                       )}
                       <div className="flex items-center justify-between mt-2 text-xs text-slate-400">
-                        <span className="truncate">{workspace.local_path}</span>
-                        <span>{formatLastAccessed(workspace.last_accessed_at)}</span>
+                        <span className="truncate flex-1 mr-2">{workspace.local_path}</span>
+                        <span className="flex-shrink-0">{formatLastAccessed(workspace.last_accessed_at)}</span>
                       </div>
                     </div>
                   </div>

@@ -148,7 +148,7 @@ export const mockTauriAPI = () => {
         }
       },
       event: {
-        listen: async (event: string, handler: Function) => {
+        listen: async (event: string, _handler: Function) => {
           console.log(`[MOCK] Tauri event listener: ${event}`);
           return () => {}; // Return unsubscribe function
         },
@@ -168,7 +168,7 @@ export const mockTauriAPI = () => {
 // Auto-initialize in test environments
 if (typeof window !== 'undefined' && (
   window.location.hostname === 'localhost' || 
-  process.env.NODE_ENV === 'test' ||
+  ((window as any).process?.env?.NODE_ENV === 'test') ||
   (window as any).playwright ||
   navigator.userAgent.includes('HeadlessChrome') ||
   window.location.search.includes('playwright')

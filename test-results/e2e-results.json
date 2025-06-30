@@ -11,7 +11,7 @@
     "grepInvert": null,
     "maxFailures": 0,
     "metadata": {
-      "actualWorkers": 1
+      "actualWorkers": 4
     },
     "preserveOutput": "always",
     "reporter": [
@@ -37,7 +37,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 1
+          "actualWorkers": 4
         },
         "id": "chromium",
         "name": "chromium",
@@ -46,14 +46,14 @@
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
         ],
-        "timeout": 60000
+        "timeout": 120000
       },
       {
         "outputDir": "/Users/xb/table/postgirl/test-results/e2e-artifacts",
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 1
+          "actualWorkers": 4
         },
         "id": "firefox",
         "name": "firefox",
@@ -62,14 +62,14 @@
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
         ],
-        "timeout": 60000
+        "timeout": 120000
       },
       {
         "outputDir": "/Users/xb/table/postgirl/test-results/e2e-artifacts",
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 1
+          "actualWorkers": 4
         },
         "id": "webkit",
         "name": "webkit",
@@ -78,14 +78,14 @@
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
         ],
-        "timeout": 60000
+        "timeout": 120000
       },
       {
         "outputDir": "/Users/xb/table/postgirl/test-results/e2e-artifacts",
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 1
+          "actualWorkers": 4
         },
         "id": "Mobile Chrome",
         "name": "Mobile Chrome",
@@ -94,14 +94,14 @@
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
         ],
-        "timeout": 60000
+        "timeout": 120000
       },
       {
         "outputDir": "/Users/xb/table/postgirl/test-results/e2e-artifacts",
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 1
+          "actualWorkers": 4
         },
         "id": "Mobile Safari",
         "name": "Mobile Safari",
@@ -110,14 +110,14 @@
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
         ],
-        "timeout": 60000
+        "timeout": 120000
       },
       {
         "outputDir": "/Users/xb/table/postgirl/test-results/e2e-artifacts",
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 1
+          "actualWorkers": 4
         },
         "id": "Microsoft Edge",
         "name": "Microsoft Edge",
@@ -126,14 +126,14 @@
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
         ],
-        "timeout": 60000
+        "timeout": 120000
       },
       {
         "outputDir": "/Users/xb/table/postgirl/test-results/e2e-artifacts",
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 1
+          "actualWorkers": 4
         },
         "id": "Google Chrome",
         "name": "Google Chrome",
@@ -142,7 +142,7 @@
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
         ],
-        "timeout": 60000
+        "timeout": 120000
       }
     ],
     "shard": null,
@@ -159,25 +159,25 @@
   },
   "suites": [
     {
-      "title": "api-request-workflow.spec.ts",
-      "file": "api-request-workflow.spec.ts",
+      "title": "header-layout-check.spec.ts",
+      "file": "header-layout-check.spec.ts",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "API Request Workflow E2E Tests",
-          "file": "api-request-workflow.spec.ts",
+          "title": "Header Layout Visual Check",
+          "file": "header-layout-check.spec.ts",
           "line": 3,
           "column": 6,
           "specs": [
             {
-              "title": "should create and execute a GET request",
-              "ok": false,
+              "title": "should verify workspace dropdown positioning in header",
+              "ok": true,
               "tags": [],
               "tests": [
                 {
-                  "timeout": 60000,
+                  "timeout": 120000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "chromium",
@@ -186,71 +186,1767 @@
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "timedOut",
-                      "duration": 61472,
-                      "error": {
-                        "message": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
-                        "stack": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at /Users/xb/table/postgirl/tests/e2e/api-request-workflow.spec.ts:4:8",
-                        "location": {
-                          "file": "/Users/xb/table/postgirl/tests/e2e/api-request-workflow.spec.ts",
-                          "column": 8,
-                          "line": 4
+                      "status": "passed",
+                      "duration": 2287,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "=== HEADER LAYOUT VISUAL CHECK ===\n"
                         },
-                        "snippet": "  2 |\n  3 | test.describe('API Request Workflow E2E Tests', () => {\n> 4 |   test.beforeEach(async ({ page }) => {\n    |        ^\n  5 |     await page.goto('/');\n  6 |     await page.waitForSelector('[data-testid=\"app-loaded\"]', { timeout: 30000 });\n  7 |     "
+                        {
+                          "text": "Header Layout Analysis: {\n  \"header\": {\n    \"width\": 1280,\n    \"height\": 64,\n    \"left\": 0,\n    \"right\": 1280\n  },\n  \"leftSection\": {\n    \"width\": 327.5,\n    \"left\": 17,\n    \"right\": 344.5\n  },\n  \"rightSection\": {\n    \"width\": 256,\n    \"left\": 1007,\n    \"right\": 1263\n  },\n  \"workspaceSelector\": {\n    \"width\": 256,\n    \"left\": 1007,\n    \"right\": 1263,\n    \"distanceFromHeaderRight\": 17,\n    \"isInRightSection\": true\n  },\n  \"viewport\": {\n    \"width\": 1280,\n    \"height\": 720\n  }\n}\n"
+                        },
+                        {
+                          "text": "Workspace selector distance from right edge: 17px\n"
+                        },
+                        {
+                          "text": "Workspace selector is in right section: true\n"
+                        },
+                        {
+                          "text": "Theme toggle in header: 0\n"
+                        },
+                        {
+                          "text": "Theme toggle in sidebar: 1\n"
+                        },
+                        {
+                          "text": "Header Structure: {\n  \"children\": [\n    {\n      \"index\": 0,\n      \"className\": \"flex items-center space-x-4\",\n      \"innerHTML\": \"<div class=\\\"flex items-center space-x-2\\\"><div class=\\\"w-8 h-8 rounded-lg bg-gradient-to-br from-prima...\",\n      \"width\": 327.5\n    },\n    {\n      \"index\": 1,\n      \"className\": \"flex items-center ml-auto mr-0\",\n      \"innerHTML\": \"<div class=\\\"relative w-64\\\"><button class=\\\"btn btn-secondary px-4 py-2 text-sm w-full justify-between...\",\n      \"width\": 256\n    }\n  ]\n}\n"
+                        },
+                        {
+                          "text": "Testing workspace dropdown...\n"
+                        },
+                        {
+                          "text": "✅ Workspace dropdown opens correctly\n"
+                        },
+                        {
+                          "text": "Dropdown Analysis: {\n  \"dropdown\": {\n    \"width\": 320,\n    \"left\": 943,\n    \"right\": 1263,\n    \"top\": 55\n  },\n  \"button\": {\n    \"width\": 256,\n    \"left\": 1007,\n    \"right\": 1263,\n    \"bottom\": 51\n  },\n  \"alignment\": {\n    \"leftAligned\": false,\n    \"rightAligned\": true,\n    \"dropdownWiderThanButton\": true\n  }\n}\n"
+                        },
+                        {
+                          "text": "\n=== HEADER LAYOUT REPORT ===\n"
+                        },
+                        {
+                          "text": "1. Workspace Selector Position: ✅ In right section\n"
+                        },
+                        {
+                          "text": "2. Distance from right edge: 17px\n"
+                        },
+                        {
+                          "text": "3. Theme toggle in header: ✅ Removed from header\n"
+                        },
+                        {
+                          "text": "4. Theme toggle in sidebar: ✅ In sidebar\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-30T14:56:03.057Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f7cca897831c7ad33b44-c013617ebe818286b393",
+              "file": "header-layout-check.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "should verify workspace dropdown positioning in header",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 3401,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "=== HEADER LAYOUT VISUAL CHECK ===\n"
+                        },
+                        {
+                          "text": "Header Layout Analysis: {\n  \"header\": {\n    \"width\": 1280,\n    \"height\": 64,\n    \"left\": 0,\n    \"right\": 1280\n  },\n  \"leftSection\": {\n    \"width\": 327.933349609375,\n    \"left\": 17,\n    \"right\": 344.933349609375\n  },\n  \"rightSection\": {\n    \"width\": 256,\n    \"left\": 1007,\n    \"right\": 1263\n  },\n  \"workspaceSelector\": {\n    \"width\": 256,\n    \"left\": 1007,\n    \"right\": 1263,\n    \"distanceFromHeaderRight\": 17,\n    \"isInRightSection\": true\n  },\n  \"viewport\": {\n    \"width\": 1280,\n    \"height\": 720\n  }\n}\n"
+                        },
+                        {
+                          "text": "Workspace selector distance from right edge: 17px\n"
+                        },
+                        {
+                          "text": "Workspace selector is in right section: true\n"
+                        },
+                        {
+                          "text": "Theme toggle in header: 0\n"
+                        },
+                        {
+                          "text": "Theme toggle in sidebar: 1\n"
+                        },
+                        {
+                          "text": "Header Structure: {\n  \"children\": [\n    {\n      \"index\": 0,\n      \"className\": \"flex items-center space-x-4\",\n      \"innerHTML\": \"<div class=\\\"flex items-center space-x-2\\\"><div class=\\\"w-8 h-8 rounded-lg bg-gradient-to-br from-prima...\",\n      \"width\": 327.933349609375\n    },\n    {\n      \"index\": 1,\n      \"className\": \"flex items-center ml-auto mr-0\",\n      \"innerHTML\": \"<div class=\\\"relative w-64\\\"><button class=\\\"btn btn-secondary px-4 py-2 text-sm w-full justify-between...\",\n      \"width\": 256\n    }\n  ]\n}\n"
+                        },
+                        {
+                          "text": "Testing workspace dropdown...\n"
+                        },
+                        {
+                          "text": "✅ Workspace dropdown opens correctly\n"
+                        },
+                        {
+                          "text": "Dropdown Analysis: {\n  \"dropdown\": {\n    \"width\": 320,\n    \"left\": 943,\n    \"right\": 1263,\n    \"top\": 55\n  },\n  \"button\": {\n    \"width\": 256,\n    \"left\": 1007,\n    \"right\": 1263,\n    \"bottom\": 51\n  },\n  \"alignment\": {\n    \"leftAligned\": false,\n    \"rightAligned\": true,\n    \"dropdownWiderThanButton\": true\n  }\n}\n"
+                        },
+                        {
+                          "text": "\n=== HEADER LAYOUT REPORT ===\n"
+                        },
+                        {
+                          "text": "1. Workspace Selector Position: ✅ In right section\n"
+                        },
+                        {
+                          "text": "2. Distance from right edge: 17px\n"
+                        },
+                        {
+                          "text": "3. Theme toggle in header: ✅ Removed from header\n"
+                        },
+                        {
+                          "text": "4. Theme toggle in sidebar: ✅ In sidebar\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-30T14:56:04.483Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f7cca897831c7ad33b44-44ee4a798be47cd7844b",
+              "file": "header-layout-check.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "should verify workspace dropdown positioning in header",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 3316,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "=== HEADER LAYOUT VISUAL CHECK ===\n"
+                        },
+                        {
+                          "text": "Header Layout Analysis: {\n  \"header\": {\n    \"width\": 1280,\n    \"height\": 64,\n    \"left\": 0,\n    \"right\": 1280\n  },\n  \"leftSection\": {\n    \"width\": 327.515625,\n    \"left\": 17,\n    \"right\": 344.515625\n  },\n  \"rightSection\": {\n    \"width\": 256,\n    \"left\": 1007,\n    \"right\": 1263\n  },\n  \"workspaceSelector\": {\n    \"width\": 256,\n    \"left\": 1007,\n    \"right\": 1263,\n    \"distanceFromHeaderRight\": 17,\n    \"isInRightSection\": true\n  },\n  \"viewport\": {\n    \"width\": 1280,\n    \"height\": 720\n  }\n}\n"
+                        },
+                        {
+                          "text": "Workspace selector distance from right edge: 17px\n"
+                        },
+                        {
+                          "text": "Workspace selector is in right section: true\n"
+                        },
+                        {
+                          "text": "Theme toggle in header: 0\n"
+                        },
+                        {
+                          "text": "Theme toggle in sidebar: 1\n"
+                        },
+                        {
+                          "text": "Header Structure: {\n  \"children\": [\n    {\n      \"index\": 0,\n      \"className\": \"flex items-center space-x-4\",\n      \"innerHTML\": \"<div class=\\\"flex items-center space-x-2\\\"><div class=\\\"w-8 h-8 rounded-lg bg-gradient-to-br from-prima...\",\n      \"width\": 327.515625\n    },\n    {\n      \"index\": 1,\n      \"className\": \"flex items-center ml-auto mr-0\",\n      \"innerHTML\": \"<div class=\\\"relative w-64\\\"><button class=\\\"btn btn-secondary px-4 py-2 text-sm w-full justify-between...\",\n      \"width\": 256\n    }\n  ]\n}\n"
+                        },
+                        {
+                          "text": "Testing workspace dropdown...\n"
+                        },
+                        {
+                          "text": "✅ Workspace dropdown opens correctly\n"
+                        },
+                        {
+                          "text": "Dropdown Analysis: {\n  \"dropdown\": {\n    \"width\": 320,\n    \"left\": 943,\n    \"right\": 1263,\n    \"top\": 55\n  },\n  \"button\": {\n    \"width\": 256,\n    \"left\": 1007,\n    \"right\": 1263,\n    \"bottom\": 51\n  },\n  \"alignment\": {\n    \"leftAligned\": false,\n    \"rightAligned\": true,\n    \"dropdownWiderThanButton\": true\n  }\n}\n"
+                        },
+                        {
+                          "text": "\n=== HEADER LAYOUT REPORT ===\n"
+                        },
+                        {
+                          "text": "1. Workspace Selector Position: ✅ In right section\n"
+                        },
+                        {
+                          "text": "2. Distance from right edge: 17px\n"
+                        },
+                        {
+                          "text": "3. Theme toggle in header: ✅ Removed from header\n"
+                        },
+                        {
+                          "text": "4. Theme toggle in sidebar: ✅ In sidebar\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-30T14:56:09.864Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f7cca897831c7ad33b44-eab65732e67757f69a02",
+              "file": "header-layout-check.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "should verify workspace dropdown positioning in header",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 12,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2541,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "=== HEADER LAYOUT VISUAL CHECK ===\n"
+                        },
+                        {
+                          "text": "Header Layout Analysis: {\n  \"header\": {\n    \"width\": 393,\n    \"height\": 126,\n    \"left\": 0,\n    \"right\": 393\n  },\n  \"leftSection\": {\n    \"width\": 183.328125,\n    \"left\": 17,\n    \"right\": 200.328125\n  },\n  \"rightSection\": {\n    \"width\": 256,\n    \"left\": 200.328125,\n    \"right\": 456.328125\n  },\n  \"workspaceSelector\": {\n    \"width\": 256,\n    \"left\": 200.328125,\n    \"right\": 456.328125,\n    \"distanceFromHeaderRight\": -63.328125,\n    \"isInRightSection\": true\n  },\n  \"viewport\": {\n    \"width\": 456,\n    \"height\": 844\n  }\n}\n"
+                        },
+                        {
+                          "text": "Workspace selector distance from right edge: -63.328125px\n"
+                        },
+                        {
+                          "text": "Workspace selector is in right section: true\n"
+                        },
+                        {
+                          "text": "Theme toggle in header: 0\n"
+                        },
+                        {
+                          "text": "Theme toggle in sidebar: 1\n"
+                        },
+                        {
+                          "text": "Header Structure: {\n  \"children\": [\n    {\n      \"index\": 0,\n      \"className\": \"flex items-center space-x-4\",\n      \"innerHTML\": \"<div class=\\\"flex items-center space-x-2\\\"><div class=\\\"w-8 h-8 rounded-lg bg-gradient-to-br from-prima...\",\n      \"width\": 183.328125\n    },\n    {\n      \"index\": 1,\n      \"className\": \"flex items-center ml-auto mr-0\",\n      \"innerHTML\": \"<div class=\\\"relative w-64\\\"><button class=\\\"btn btn-secondary px-4 py-2 text-sm w-full justify-between...\",\n      \"width\": 256\n    }\n  ]\n}\n"
+                        },
+                        {
+                          "text": "Testing workspace dropdown...\n"
+                        },
+                        {
+                          "text": "✅ Workspace dropdown opens correctly\n"
+                        },
+                        {
+                          "text": "Dropdown Analysis: {\n  \"dropdown\": {\n    \"width\": 320,\n    \"left\": 128,\n    \"right\": 448,\n    \"top\": 86\n  },\n  \"button\": {\n    \"width\": 256,\n    \"left\": 200.328125,\n    \"right\": 456.328125,\n    \"bottom\": 82\n  },\n  \"alignment\": {\n    \"leftAligned\": false,\n    \"rightAligned\": false,\n    \"dropdownWiderThanButton\": true\n  }\n}\n"
+                        },
+                        {
+                          "text": "\n=== HEADER LAYOUT REPORT ===\n"
+                        },
+                        {
+                          "text": "1. Workspace Selector Position: ✅ In right section\n"
+                        },
+                        {
+                          "text": "2. Distance from right edge: -63.328125px\n"
+                        },
+                        {
+                          "text": "3. Theme toggle in header: ✅ Removed from header\n"
+                        },
+                        {
+                          "text": "4. Theme toggle in sidebar: ✅ In sidebar\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-30T14:56:12.633Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f7cca897831c7ad33b44-b9125c8385db13dc8d74",
+              "file": "header-layout-check.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "should verify workspace dropdown positioning in header",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 16,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 777,
+                      "error": {
+                        "message": "Error: page.goto: Could not connect to the server.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: Could not connect to the server.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n\n    at /Users/xb/table/postgirl/tests/e2e/header-layout-check.spec.ts:7:16",
+                        "location": {
+                          "file": "/Users/xb/table/postgirl/tests/e2e/header-layout-check.spec.ts",
+                          "column": 16,
+                          "line": 7
+                        },
+                        "snippet": "   5 |     console.log('=== HEADER LAYOUT VISUAL CHECK ===');\n   6 |     \n>  7 |     await page.goto('/');\n     |                ^\n   8 |     await page.waitForSelector('[data-testid=\"app-loaded\"]', { timeout: 30000 });\n   9 |     await page.waitForLoadState('networkidle');\n  10 |"
                       },
                       "errors": [
                         {
                           "location": {
-                            "file": "/Users/xb/table/postgirl/tests/e2e/api-request-workflow.spec.ts",
-                            "column": 8,
-                            "line": 4
+                            "file": "/Users/xb/table/postgirl/tests/e2e/header-layout-check.spec.ts",
+                            "column": 16,
+                            "line": 7
                           },
-                          "message": "\u001b[31mTest timeout of 60000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n  2 |\n  3 | test.describe('API Request Workflow E2E Tests', () => {\n> 4 |   test.beforeEach(async ({ page }) => {\n    |        ^\n  5 |     await page.goto('/');\n  6 |     await page.waitForSelector('[data-testid=\"app-loaded\"]', { timeout: 30000 });\n  7 |     \n    at /Users/xb/table/postgirl/tests/e2e/api-request-workflow.spec.ts:4:8"
-                        },
-                        {
-                          "location": {
-                            "file": "/Users/xb/table/postgirl/tests/e2e/api-request-workflow.spec.ts",
-                            "column": 18,
-                            "line": 39
-                          },
-                          "message": "Error: page.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"API Testing\")')\u001b[22m\n\u001b[2m    - locator resolved to <button class=\"btn btn-ghost px-4 py-2 text-sm\">API Testing</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    112 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m        - element is visible, enabled and stable\u001b[22m\n\u001b[2m        - scrolling into view if needed\u001b[22m\n\u001b[2m        - done scrolling\u001b[22m\n\u001b[2m        - <div class=\"fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m      - retrying click action\u001b[22m\n\u001b[2m        - waiting 500ms\u001b[22m\n\n\n  37 |       \n  38 |       // Switch to API testing view\n> 39 |       await page.click('button:has-text(\"API Testing\")');\n     |                  ^\n  40 |       await page.waitForSelector('[data-testid=\"api-testing-container\"]', { timeout: 5000 });\n  41 |     }\n  42 |     \n    at /Users/xb/table/postgirl/tests/e2e/api-request-workflow.spec.ts:39:18"
+                          "message": "Error: page.goto: Could not connect to the server.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n\n\n   5 |     console.log('=== HEADER LAYOUT VISUAL CHECK ===');\n   6 |     \n>  7 |     await page.goto('/');\n     |                ^\n   8 |     await page.waitForSelector('[data-testid=\"app-loaded\"]', { timeout: 30000 });\n   9 |     await page.waitForLoadState('networkidle');\n  10 |\n    at /Users/xb/table/postgirl/tests/e2e/header-layout-check.spec.ts:7:16"
                         }
                       ],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "=== HEADER LAYOUT VISUAL CHECK ===\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-06-29T04:12:04.418Z",
+                      "startTime": "2025-06-30T14:56:16.050Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "screenshot",
                           "contentType": "image/png",
-                          "path": "/Users/xb/table/postgirl/test-results/e2e-artifacts/api-request-workflow-API-R-49142-e-and-execute-a-GET-request-chromium/test-failed-1.png"
+                          "path": "/Users/xb/table/postgirl/test-results/e2e-artifacts/header-layout-check-Header-44f0b-pdown-positioning-in-header-Mobile-Safari/test-failed-1.png"
                         },
                         {
                           "name": "video",
                           "contentType": "video/webm",
-                          "path": "/Users/xb/table/postgirl/test-results/e2e-artifacts/api-request-workflow-API-R-49142-e-and-execute-a-GET-request-chromium/video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "/Users/xb/table/postgirl/test-results/e2e-artifacts/api-request-workflow-API-R-49142-e-and-execute-a-GET-request-chromium/error-context.md"
+                          "path": "/Users/xb/table/postgirl/test-results/e2e-artifacts/header-layout-check-Header-44f0b-pdown-positioning-in-header-Mobile-Safari/video.webm"
                         }
                       ],
                       "errorLocation": {
-                        "file": "/Users/xb/table/postgirl/tests/e2e/api-request-workflow.spec.ts",
-                        "column": 8,
-                        "line": 4
+                        "file": "/Users/xb/table/postgirl/tests/e2e/header-layout-check.spec.ts",
+                        "column": 16,
+                        "line": 7
                       }
                     }
                   ],
                   "status": "unexpected"
                 }
               ],
-              "id": "8680eacf4d73b5cfaad6-d725b95bce33894f2cca",
-              "file": "api-request-workflow.spec.ts",
-              "line": 53,
+              "id": "f7cca897831c7ad33b44-ba49f31d1bfc1975608b",
+              "file": "header-layout-check.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "should verify workspace dropdown positioning in header",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Microsoft Edge",
+                  "projectName": "Microsoft Edge",
+                  "results": [
+                    {
+                      "workerIndex": 20,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 483,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:1420/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:1420/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n\n    at /Users/xb/table/postgirl/tests/e2e/header-layout-check.spec.ts:7:16",
+                        "location": {
+                          "file": "/Users/xb/table/postgirl/tests/e2e/header-layout-check.spec.ts",
+                          "column": 16,
+                          "line": 7
+                        },
+                        "snippet": "   5 |     console.log('=== HEADER LAYOUT VISUAL CHECK ===');\n   6 |     \n>  7 |     await page.goto('/');\n     |                ^\n   8 |     await page.waitForSelector('[data-testid=\"app-loaded\"]', { timeout: 30000 });\n   9 |     await page.waitForLoadState('networkidle');\n  10 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/xb/table/postgirl/tests/e2e/header-layout-check.spec.ts",
+                            "column": 16,
+                            "line": 7
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:1420/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n\n\n   5 |     console.log('=== HEADER LAYOUT VISUAL CHECK ===');\n   6 |     \n>  7 |     await page.goto('/');\n     |                ^\n   8 |     await page.waitForSelector('[data-testid=\"app-loaded\"]', { timeout: 30000 });\n   9 |     await page.waitForLoadState('networkidle');\n  10 |\n    at /Users/xb/table/postgirl/tests/e2e/header-layout-check.spec.ts:7:16"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "=== HEADER LAYOUT VISUAL CHECK ===\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-30T14:56:17.810Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/xb/table/postgirl/test-results/e2e-artifacts/header-layout-check-Header-44f0b-pdown-positioning-in-header-Microsoft-Edge/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/xb/table/postgirl/test-results/e2e-artifacts/header-layout-check-Header-44f0b-pdown-positioning-in-header-Microsoft-Edge/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/xb/table/postgirl/tests/e2e/header-layout-check.spec.ts",
+                        "column": 16,
+                        "line": 7
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "f7cca897831c7ad33b44-042b126d5686dc181d68",
+              "file": "header-layout-check.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "should verify workspace dropdown positioning in header",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Google Chrome",
+                  "projectName": "Google Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 24,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 1927,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:1420/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:1420/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n\n    at /Users/xb/table/postgirl/tests/e2e/header-layout-check.spec.ts:7:16",
+                        "location": {
+                          "file": "/Users/xb/table/postgirl/tests/e2e/header-layout-check.spec.ts",
+                          "column": 16,
+                          "line": 7
+                        },
+                        "snippet": "   5 |     console.log('=== HEADER LAYOUT VISUAL CHECK ===');\n   6 |     \n>  7 |     await page.goto('/');\n     |                ^\n   8 |     await page.waitForSelector('[data-testid=\"app-loaded\"]', { timeout: 30000 });\n   9 |     await page.waitForLoadState('networkidle');\n  10 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/xb/table/postgirl/tests/e2e/header-layout-check.spec.ts",
+                            "column": 16,
+                            "line": 7
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:1420/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n\n\n   5 |     console.log('=== HEADER LAYOUT VISUAL CHECK ===');\n   6 |     \n>  7 |     await page.goto('/');\n     |                ^\n   8 |     await page.waitForSelector('[data-testid=\"app-loaded\"]', { timeout: 30000 });\n   9 |     await page.waitForLoadState('networkidle');\n  10 |\n    at /Users/xb/table/postgirl/tests/e2e/header-layout-check.spec.ts:7:16"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "=== HEADER LAYOUT VISUAL CHECK ===\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-30T14:56:19.151Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/xb/table/postgirl/test-results/e2e-artifacts/header-layout-check-Header-44f0b-pdown-positioning-in-header-Google-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/xb/table/postgirl/test-results/e2e-artifacts/header-layout-check-Header-44f0b-pdown-positioning-in-header-Google-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/xb/table/postgirl/test-results/e2e-artifacts/header-layout-check-Header-44f0b-pdown-positioning-in-header-Google-Chrome/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/xb/table/postgirl/tests/e2e/header-layout-check.spec.ts",
+                        "column": 16,
+                        "line": 7
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "f7cca897831c7ad33b44-91e60e458a768b137b83",
+              "file": "header-layout-check.spec.ts",
+              "line": 4,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "send-button-visibility.spec.ts",
+      "file": "send-button-visibility.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Send Button Visibility with Multiple Tabs",
+          "file": "send-button-visibility.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should keep send button visible with multiple tabs",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 2440,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "=== SEND BUTTON VISIBILITY TEST ===\n"
+                        },
+                        {
+                          "text": "Main content area exists: \u001b[33mfalse\u001b[39m\n"
+                        },
+                        {
+                          "text": "Request crafting area exists: \u001b[33mfalse\u001b[39m\n"
+                        },
+                        {
+                          "text": "Main content areas not found - checking current state...\n"
+                        },
+                        {
+                          "text": "Screenshot saved to test-results/current-app-state.png\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-30T14:56:03.047Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8074f2002a56b49f62e2-47cc514b73c9b47a3912",
+              "file": "send-button-visibility.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "should keep send button visible with multiple tabs",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 3485,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "=== SEND BUTTON VISIBILITY TEST ===\n"
+                        },
+                        {
+                          "text": "Main content area exists: \u001b[33mfalse\u001b[39m\n"
+                        },
+                        {
+                          "text": "Request crafting area exists: \u001b[33mfalse\u001b[39m\n"
+                        },
+                        {
+                          "text": "Main content areas not found - checking current state...\n"
+                        },
+                        {
+                          "text": "Screenshot saved to test-results/current-app-state.png\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-30T14:56:04.499Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8074f2002a56b49f62e2-168b0302f8037691f656",
+              "file": "send-button-visibility.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "should keep send button visible with multiple tabs",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 3418,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "=== SEND BUTTON VISIBILITY TEST ===\n"
+                        },
+                        {
+                          "text": "Main content area exists: \u001b[33mfalse\u001b[39m\n"
+                        },
+                        {
+                          "text": "Request crafting area exists: \u001b[33mfalse\u001b[39m\n"
+                        },
+                        {
+                          "text": "Main content areas not found - checking current state...\n"
+                        },
+                        {
+                          "text": "Screenshot saved to test-results/current-app-state.png\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-30T14:56:10.362Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8074f2002a56b49f62e2-2a107a8b0ace6e4b875e",
+              "file": "send-button-visibility.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "should keep send button visible with multiple tabs",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 13,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 2550,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "=== SEND BUTTON VISIBILITY TEST ===\n"
+                        },
+                        {
+                          "text": "Main content area exists: \u001b[33mfalse\u001b[39m\n"
+                        },
+                        {
+                          "text": "Request crafting area exists: \u001b[33mfalse\u001b[39m\n"
+                        },
+                        {
+                          "text": "Main content areas not found - checking current state...\n"
+                        },
+                        {
+                          "text": "Screenshot saved to test-results/current-app-state.png\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-30T14:56:12.670Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8074f2002a56b49f62e2-bd9d2e95275455d702e4",
+              "file": "send-button-visibility.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "should keep send button visible with multiple tabs",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 17,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 807,
+                      "error": {
+                        "message": "Error: page.goto: Could not connect to the server.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: Could not connect to the server.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n\n    at /Users/xb/table/postgirl/tests/e2e/send-button-visibility.spec.ts:7:16",
+                        "location": {
+                          "file": "/Users/xb/table/postgirl/tests/e2e/send-button-visibility.spec.ts",
+                          "column": 16,
+                          "line": 7
+                        },
+                        "snippet": "   5 |     console.log('=== SEND BUTTON VISIBILITY TEST ===');\n   6 |     \n>  7 |     await page.goto('/');\n     |                ^\n   8 |     await page.waitForSelector('[data-testid=\"app-loaded\"]', { timeout: 10000 });\n   9 |     await page.waitForLoadState('networkidle');\n  10 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/xb/table/postgirl/tests/e2e/send-button-visibility.spec.ts",
+                            "column": 16,
+                            "line": 7
+                          },
+                          "message": "Error: page.goto: Could not connect to the server.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n\n\n   5 |     console.log('=== SEND BUTTON VISIBILITY TEST ===');\n   6 |     \n>  7 |     await page.goto('/');\n     |                ^\n   8 |     await page.waitForSelector('[data-testid=\"app-loaded\"]', { timeout: 10000 });\n   9 |     await page.waitForLoadState('networkidle');\n  10 |\n    at /Users/xb/table/postgirl/tests/e2e/send-button-visibility.spec.ts:7:16"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "=== SEND BUTTON VISIBILITY TEST ===\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-30T14:56:16.040Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/xb/table/postgirl/test-results/e2e-artifacts/send-button-visibility-Sen-d86e2--visible-with-multiple-tabs-Mobile-Safari/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/xb/table/postgirl/test-results/e2e-artifacts/send-button-visibility-Sen-d86e2--visible-with-multiple-tabs-Mobile-Safari/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/xb/table/postgirl/tests/e2e/send-button-visibility.spec.ts",
+                        "column": 16,
+                        "line": 7
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "8074f2002a56b49f62e2-8f15a115a1fad8f3a8b1",
+              "file": "send-button-visibility.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "should keep send button visible with multiple tabs",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Microsoft Edge",
+                  "projectName": "Microsoft Edge",
+                  "results": [
+                    {
+                      "workerIndex": 22,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 482,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:1420/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:1420/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n\n    at /Users/xb/table/postgirl/tests/e2e/send-button-visibility.spec.ts:7:16",
+                        "location": {
+                          "file": "/Users/xb/table/postgirl/tests/e2e/send-button-visibility.spec.ts",
+                          "column": 16,
+                          "line": 7
+                        },
+                        "snippet": "   5 |     console.log('=== SEND BUTTON VISIBILITY TEST ===');\n   6 |     \n>  7 |     await page.goto('/');\n     |                ^\n   8 |     await page.waitForSelector('[data-testid=\"app-loaded\"]', { timeout: 10000 });\n   9 |     await page.waitForLoadState('networkidle');\n  10 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/xb/table/postgirl/tests/e2e/send-button-visibility.spec.ts",
+                            "column": 16,
+                            "line": 7
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:1420/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n\n\n   5 |     console.log('=== SEND BUTTON VISIBILITY TEST ===');\n   6 |     \n>  7 |     await page.goto('/');\n     |                ^\n   8 |     await page.waitForSelector('[data-testid=\"app-loaded\"]', { timeout: 10000 });\n   9 |     await page.waitForLoadState('networkidle');\n  10 |\n    at /Users/xb/table/postgirl/tests/e2e/send-button-visibility.spec.ts:7:16"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "=== SEND BUTTON VISIBILITY TEST ===\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-30T14:56:17.810Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/xb/table/postgirl/test-results/e2e-artifacts/send-button-visibility-Sen-d86e2--visible-with-multiple-tabs-Microsoft-Edge/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/xb/table/postgirl/test-results/e2e-artifacts/send-button-visibility-Sen-d86e2--visible-with-multiple-tabs-Microsoft-Edge/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/xb/table/postgirl/tests/e2e/send-button-visibility.spec.ts",
+                        "column": 16,
+                        "line": 7
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "8074f2002a56b49f62e2-0baebe16c272428beaaa",
+              "file": "send-button-visibility.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "should keep send button visible with multiple tabs",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Google Chrome",
+                  "projectName": "Google Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 27,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 1801,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:1420/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:1420/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n\n    at /Users/xb/table/postgirl/tests/e2e/send-button-visibility.spec.ts:7:16",
+                        "location": {
+                          "file": "/Users/xb/table/postgirl/tests/e2e/send-button-visibility.spec.ts",
+                          "column": 16,
+                          "line": 7
+                        },
+                        "snippet": "   5 |     console.log('=== SEND BUTTON VISIBILITY TEST ===');\n   6 |     \n>  7 |     await page.goto('/');\n     |                ^\n   8 |     await page.waitForSelector('[data-testid=\"app-loaded\"]', { timeout: 10000 });\n   9 |     await page.waitForLoadState('networkidle');\n  10 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/xb/table/postgirl/tests/e2e/send-button-visibility.spec.ts",
+                            "column": 16,
+                            "line": 7
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:1420/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n\n\n   5 |     console.log('=== SEND BUTTON VISIBILITY TEST ===');\n   6 |     \n>  7 |     await page.goto('/');\n     |                ^\n   8 |     await page.waitForSelector('[data-testid=\"app-loaded\"]', { timeout: 10000 });\n   9 |     await page.waitForLoadState('networkidle');\n  10 |\n    at /Users/xb/table/postgirl/tests/e2e/send-button-visibility.spec.ts:7:16"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "=== SEND BUTTON VISIBILITY TEST ===\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-30T14:56:19.156Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/xb/table/postgirl/test-results/e2e-artifacts/send-button-visibility-Sen-d86e2--visible-with-multiple-tabs-Google-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/xb/table/postgirl/test-results/e2e-artifacts/send-button-visibility-Sen-d86e2--visible-with-multiple-tabs-Google-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/xb/table/postgirl/test-results/e2e-artifacts/send-button-visibility-Sen-d86e2--visible-with-multiple-tabs-Google-Chrome/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/xb/table/postgirl/tests/e2e/send-button-visibility.spec.ts",
+                        "column": 16,
+                        "line": 7
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "8074f2002a56b49f62e2-61811b9bfb6fa3fe1aaf",
+              "file": "send-button-visibility.spec.ts",
+              "line": 4,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "tab-fix-validation.spec.ts",
+      "file": "tab-fix-validation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Tab Container Fix Validation",
+          "file": "tab-fix-validation.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should verify tab container uses max-content width",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 917,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "=== TAB CONTAINER FIX VALIDATION ===\n"
+                        },
+                        {
+                          "text": "Tab Container CSS Analysis: {\n  \"error\": \"Tab container not found\"\n}\n"
+                        },
+                        {
+                          "text": "Tab container not found - this is expected if no tabs are open\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-30T14:56:03.045Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "42aef6cb1943666c48d6-8320aa130d8ae23984fb",
+              "file": "tab-fix-validation.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "should verify sidebar width constraints are still effective",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 864,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Sidebar CSS Verification: {\n  \"width\": \"256px\",\n  \"minWidth\": \"256px\",\n  \"maxWidth\": \"256px\",\n  \"flexShrink\": \"0\",\n  \"classList\": [\n    \"bg-slate-50\",\n    \"dark:bg-slate-800\",\n    \"border-r\",\n    \"border-slate-200\",\n    \"dark:border-slate-700\",\n    \"flex\",\n    \"flex-col\",\n    \"flex-shrink-0\",\n    \"transition-[width]\",\n    \"duration-200\",\n    \"w-64\",\n    \"min-w-[16rem]\",\n    \"max-w-[16rem]\"\n  ]\n}\n"
+                        },
+                        {
+                          "text": "✅ Sidebar width constraints remain effective\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-30T14:56:03.054Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "42aef6cb1943666c48d6-f4b1d052df14ea24a620",
+              "file": "tab-fix-validation.spec.ts",
+              "line": 46,
+              "column": 3
+            },
+            {
+              "title": "should verify tab container uses max-content width",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2501,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "=== TAB CONTAINER FIX VALIDATION ===\n"
+                        },
+                        {
+                          "text": "Tab Container CSS Analysis: {\n  \"error\": \"Tab container not found\"\n}\n"
+                        },
+                        {
+                          "text": "Tab container not found - this is expected if no tabs are open\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-30T14:56:06.028Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "42aef6cb1943666c48d6-7bfbe978a72fa26b5816",
+              "file": "tab-fix-validation.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "should verify sidebar width constraints are still effective",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 1541,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Sidebar CSS Verification: {\n  \"width\": \"256px\",\n  \"minWidth\": \"256px\",\n  \"maxWidth\": \"256px\",\n  \"flexShrink\": \"0\",\n  \"classList\": [\n    \"bg-slate-50\",\n    \"dark:bg-slate-800\",\n    \"border-r\",\n    \"border-slate-200\",\n    \"dark:border-slate-700\",\n    \"flex\",\n    \"flex-col\",\n    \"flex-shrink-0\",\n    \"transition-[width]\",\n    \"duration-200\",\n    \"w-64\",\n    \"min-w-[16rem]\",\n    \"max-w-[16rem]\"\n  ]\n}\n"
+                        },
+                        {
+                          "text": "✅ Sidebar width constraints remain effective\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-30T14:56:06.288Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "42aef6cb1943666c48d6-ef5012d5ff6947e6ed44",
+              "file": "tab-fix-validation.spec.ts",
+              "line": 46,
+              "column": 3
+            },
+            {
+              "title": "should verify tab container uses max-content width",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 11,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1461,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "=== TAB CONTAINER FIX VALIDATION ===\n"
+                        },
+                        {
+                          "text": "Tab Container CSS Analysis: {\n  \"error\": \"Tab container not found\"\n}\n"
+                        },
+                        {
+                          "text": "Tab container not found - this is expected if no tabs are open\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-30T14:56:10.480Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "42aef6cb1943666c48d6-ffbf68abca6b1e064640",
+              "file": "tab-fix-validation.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "should verify sidebar width constraints are still effective",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 1540,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Sidebar CSS Verification: {\n  \"width\": \"256px\",\n  \"minWidth\": \"256px\",\n  \"maxWidth\": \"256px\",\n  \"flexShrink\": \"0\",\n  \"classList\": [\n    \"bg-slate-50\",\n    \"dark:bg-slate-800\",\n    \"border-r\",\n    \"border-slate-200\",\n    \"dark:border-slate-700\",\n    \"flex\",\n    \"flex-col\",\n    \"flex-shrink-0\",\n    \"transition-[width]\",\n    \"duration-200\",\n    \"w-64\",\n    \"min-w-[16rem]\",\n    \"max-w-[16rem]\"\n  ]\n}\n"
+                        },
+                        {
+                          "text": "✅ Sidebar width constraints remain effective\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-30T14:56:10.434Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "42aef6cb1943666c48d6-7a40db278269ae5b9d26",
+              "file": "tab-fix-validation.spec.ts",
+              "line": 46,
+              "column": 3
+            },
+            {
+              "title": "should verify tab container uses max-content width",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 14,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 813,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "=== TAB CONTAINER FIX VALIDATION ===\n"
+                        },
+                        {
+                          "text": "Tab Container CSS Analysis: {\n  \"error\": \"Tab container not found\"\n}\n"
+                        },
+                        {
+                          "text": "Tab container not found - this is expected if no tabs are open\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-30T14:56:14.380Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "42aef6cb1943666c48d6-30a60bdac6c9197d0af4",
+              "file": "tab-fix-validation.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "should verify sidebar width constraints are still effective",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 15,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 706,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Sidebar CSS Verification: {\n  \"width\": \"256px\",\n  \"minWidth\": \"256px\",\n  \"maxWidth\": \"256px\",\n  \"flexShrink\": \"0\",\n  \"classList\": [\n    \"bg-slate-50\",\n    \"dark:bg-slate-800\",\n    \"border-r\",\n    \"border-slate-200\",\n    \"dark:border-slate-700\",\n    \"flex\",\n    \"flex-col\",\n    \"flex-shrink-0\",\n    \"transition-[width]\",\n    \"duration-200\",\n    \"w-64\",\n    \"min-w-[16rem]\",\n    \"max-w-[16rem]\"\n  ]\n}\n"
+                        },
+                        {
+                          "text": "✅ Sidebar width constraints remain effective\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-30T14:56:14.459Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "42aef6cb1943666c48d6-c1e1d7964e59860a4b4c",
+              "file": "tab-fix-validation.spec.ts",
+              "line": 46,
+              "column": 3
+            },
+            {
+              "title": "should verify tab container uses max-content width",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 19,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 786,
+                      "error": {
+                        "message": "Error: page.goto: Could not connect to the server.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: Could not connect to the server.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n\n    at /Users/xb/table/postgirl/tests/e2e/tab-fix-validation.spec.ts:7:16",
+                        "location": {
+                          "file": "/Users/xb/table/postgirl/tests/e2e/tab-fix-validation.spec.ts",
+                          "column": 16,
+                          "line": 7
+                        },
+                        "snippet": "   5 |     console.log('=== TAB CONTAINER FIX VALIDATION ===');\n   6 |     \n>  7 |     await page.goto('/');\n     |                ^\n   8 |     await page.waitForSelector('[data-testid=\"app-loaded\"]', { timeout: 30000 });\n   9 |     \n  10 |     // Check tab container CSS properties"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/xb/table/postgirl/tests/e2e/tab-fix-validation.spec.ts",
+                            "column": 16,
+                            "line": 7
+                          },
+                          "message": "Error: page.goto: Could not connect to the server.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n\n\n   5 |     console.log('=== TAB CONTAINER FIX VALIDATION ===');\n   6 |     \n>  7 |     await page.goto('/');\n     |                ^\n   8 |     await page.waitForSelector('[data-testid=\"app-loaded\"]', { timeout: 30000 });\n   9 |     \n  10 |     // Check tab container CSS properties\n    at /Users/xb/table/postgirl/tests/e2e/tab-fix-validation.spec.ts:7:16"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "=== TAB CONTAINER FIX VALIDATION ===\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-30T14:56:16.136Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/xb/table/postgirl/test-results/e2e-artifacts/tab-fix-validation-Tab-Con-b0670-iner-uses-max-content-width-Mobile-Safari/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/xb/table/postgirl/test-results/e2e-artifacts/tab-fix-validation-Tab-Con-b0670-iner-uses-max-content-width-Mobile-Safari/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/xb/table/postgirl/tests/e2e/tab-fix-validation.spec.ts",
+                        "column": 16,
+                        "line": 7
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "42aef6cb1943666c48d6-c4722ccda3b56d957d57",
+              "file": "tab-fix-validation.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "should verify sidebar width constraints are still effective",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 18,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 755,
+                      "error": {
+                        "message": "Error: page.goto: Could not connect to the server.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: Could not connect to the server.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n\n    at /Users/xb/table/postgirl/tests/e2e/tab-fix-validation.spec.ts:47:16",
+                        "location": {
+                          "file": "/Users/xb/table/postgirl/tests/e2e/tab-fix-validation.spec.ts",
+                          "column": 16,
+                          "line": 47
+                        },
+                        "snippet": "  45 |\n  46 |   test('should verify sidebar width constraints are still effective', async ({ page }) => {\n> 47 |     await page.goto('/');\n     |                ^\n  48 |     await page.waitForSelector('[data-testid=\"app-loaded\"]', { timeout: 30000 });\n  49 |\n  50 |     const sidebarCSS = await page.evaluate(() => {"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/xb/table/postgirl/tests/e2e/tab-fix-validation.spec.ts",
+                            "column": 16,
+                            "line": 47
+                          },
+                          "message": "Error: page.goto: Could not connect to the server.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n\n\n  45 |\n  46 |   test('should verify sidebar width constraints are still effective', async ({ page }) => {\n> 47 |     await page.goto('/');\n     |                ^\n  48 |     await page.waitForSelector('[data-testid=\"app-loaded\"]', { timeout: 30000 });\n  49 |\n  50 |     const sidebarCSS = await page.evaluate(() => {\n    at /Users/xb/table/postgirl/tests/e2e/tab-fix-validation.spec.ts:47:16"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-30T14:56:16.135Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/xb/table/postgirl/test-results/e2e-artifacts/tab-fix-validation-Tab-Con-ef823-traints-are-still-effective-Mobile-Safari/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/xb/table/postgirl/test-results/e2e-artifacts/tab-fix-validation-Tab-Con-ef823-traints-are-still-effective-Mobile-Safari/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/xb/table/postgirl/tests/e2e/tab-fix-validation.spec.ts",
+                        "column": 16,
+                        "line": 47
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "42aef6cb1943666c48d6-af3f9de64a6aa08d579b",
+              "file": "tab-fix-validation.spec.ts",
+              "line": 46,
+              "column": 3
+            },
+            {
+              "title": "should verify tab container uses max-content width",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Microsoft Edge",
+                  "projectName": "Microsoft Edge",
+                  "results": [
+                    {
+                      "workerIndex": 21,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 481,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:1420/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:1420/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n\n    at /Users/xb/table/postgirl/tests/e2e/tab-fix-validation.spec.ts:7:16",
+                        "location": {
+                          "file": "/Users/xb/table/postgirl/tests/e2e/tab-fix-validation.spec.ts",
+                          "column": 16,
+                          "line": 7
+                        },
+                        "snippet": "   5 |     console.log('=== TAB CONTAINER FIX VALIDATION ===');\n   6 |     \n>  7 |     await page.goto('/');\n     |                ^\n   8 |     await page.waitForSelector('[data-testid=\"app-loaded\"]', { timeout: 30000 });\n   9 |     \n  10 |     // Check tab container CSS properties"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/xb/table/postgirl/tests/e2e/tab-fix-validation.spec.ts",
+                            "column": 16,
+                            "line": 7
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:1420/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n\n\n   5 |     console.log('=== TAB CONTAINER FIX VALIDATION ===');\n   6 |     \n>  7 |     await page.goto('/');\n     |                ^\n   8 |     await page.waitForSelector('[data-testid=\"app-loaded\"]', { timeout: 30000 });\n   9 |     \n  10 |     // Check tab container CSS properties\n    at /Users/xb/table/postgirl/tests/e2e/tab-fix-validation.spec.ts:7:16"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "=== TAB CONTAINER FIX VALIDATION ===\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-30T14:56:17.816Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/xb/table/postgirl/test-results/e2e-artifacts/tab-fix-validation-Tab-Con-b0670-iner-uses-max-content-width-Microsoft-Edge/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/xb/table/postgirl/test-results/e2e-artifacts/tab-fix-validation-Tab-Con-b0670-iner-uses-max-content-width-Microsoft-Edge/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/xb/table/postgirl/tests/e2e/tab-fix-validation.spec.ts",
+                        "column": 16,
+                        "line": 7
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "42aef6cb1943666c48d6-5bccd81ead8923b78f3b",
+              "file": "tab-fix-validation.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "should verify sidebar width constraints are still effective",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Microsoft Edge",
+                  "projectName": "Microsoft Edge",
+                  "results": [
+                    {
+                      "workerIndex": 23,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 474,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:1420/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:1420/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n\n    at /Users/xb/table/postgirl/tests/e2e/tab-fix-validation.spec.ts:47:16",
+                        "location": {
+                          "file": "/Users/xb/table/postgirl/tests/e2e/tab-fix-validation.spec.ts",
+                          "column": 16,
+                          "line": 47
+                        },
+                        "snippet": "  45 |\n  46 |   test('should verify sidebar width constraints are still effective', async ({ page }) => {\n> 47 |     await page.goto('/');\n     |                ^\n  48 |     await page.waitForSelector('[data-testid=\"app-loaded\"]', { timeout: 30000 });\n  49 |\n  50 |     const sidebarCSS = await page.evaluate(() => {"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/xb/table/postgirl/tests/e2e/tab-fix-validation.spec.ts",
+                            "column": 16,
+                            "line": 47
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:1420/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n\n\n  45 |\n  46 |   test('should verify sidebar width constraints are still effective', async ({ page }) => {\n> 47 |     await page.goto('/');\n     |                ^\n  48 |     await page.waitForSelector('[data-testid=\"app-loaded\"]', { timeout: 30000 });\n  49 |\n  50 |     const sidebarCSS = await page.evaluate(() => {\n    at /Users/xb/table/postgirl/tests/e2e/tab-fix-validation.spec.ts:47:16"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-30T14:56:17.813Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/xb/table/postgirl/test-results/e2e-artifacts/tab-fix-validation-Tab-Con-ef823-traints-are-still-effective-Microsoft-Edge/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/xb/table/postgirl/test-results/e2e-artifacts/tab-fix-validation-Tab-Con-ef823-traints-are-still-effective-Microsoft-Edge/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/xb/table/postgirl/tests/e2e/tab-fix-validation.spec.ts",
+                        "column": 16,
+                        "line": 47
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "42aef6cb1943666c48d6-986a1b58bf4229b690d4",
+              "file": "tab-fix-validation.spec.ts",
+              "line": 46,
+              "column": 3
+            },
+            {
+              "title": "should verify tab container uses max-content width",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Google Chrome",
+                  "projectName": "Google Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 25,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 872,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:1420/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:1420/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n\n    at /Users/xb/table/postgirl/tests/e2e/tab-fix-validation.spec.ts:7:16",
+                        "location": {
+                          "file": "/Users/xb/table/postgirl/tests/e2e/tab-fix-validation.spec.ts",
+                          "column": 16,
+                          "line": 7
+                        },
+                        "snippet": "   5 |     console.log('=== TAB CONTAINER FIX VALIDATION ===');\n   6 |     \n>  7 |     await page.goto('/');\n     |                ^\n   8 |     await page.waitForSelector('[data-testid=\"app-loaded\"]', { timeout: 30000 });\n   9 |     \n  10 |     // Check tab container CSS properties"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/xb/table/postgirl/tests/e2e/tab-fix-validation.spec.ts",
+                            "column": 16,
+                            "line": 7
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:1420/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n\n\n   5 |     console.log('=== TAB CONTAINER FIX VALIDATION ===');\n   6 |     \n>  7 |     await page.goto('/');\n     |                ^\n   8 |     await page.waitForSelector('[data-testid=\"app-loaded\"]', { timeout: 30000 });\n   9 |     \n  10 |     // Check tab container CSS properties\n    at /Users/xb/table/postgirl/tests/e2e/tab-fix-validation.spec.ts:7:16"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "=== TAB CONTAINER FIX VALIDATION ===\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-30T14:56:19.149Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/xb/table/postgirl/test-results/e2e-artifacts/tab-fix-validation-Tab-Con-b0670-iner-uses-max-content-width-Google-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/xb/table/postgirl/test-results/e2e-artifacts/tab-fix-validation-Tab-Con-b0670-iner-uses-max-content-width-Google-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/xb/table/postgirl/test-results/e2e-artifacts/tab-fix-validation-Tab-Con-b0670-iner-uses-max-content-width-Google-Chrome/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/xb/table/postgirl/tests/e2e/tab-fix-validation.spec.ts",
+                        "column": 16,
+                        "line": 7
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "42aef6cb1943666c48d6-4a844d6a488616fbdd32",
+              "file": "tab-fix-validation.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "should verify sidebar width constraints are still effective",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Google Chrome",
+                  "projectName": "Google Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 26,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 944,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:1420/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:1420/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n\n    at /Users/xb/table/postgirl/tests/e2e/tab-fix-validation.spec.ts:47:16",
+                        "location": {
+                          "file": "/Users/xb/table/postgirl/tests/e2e/tab-fix-validation.spec.ts",
+                          "column": 16,
+                          "line": 47
+                        },
+                        "snippet": "  45 |\n  46 |   test('should verify sidebar width constraints are still effective', async ({ page }) => {\n> 47 |     await page.goto('/');\n     |                ^\n  48 |     await page.waitForSelector('[data-testid=\"app-loaded\"]', { timeout: 30000 });\n  49 |\n  50 |     const sidebarCSS = await page.evaluate(() => {"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/xb/table/postgirl/tests/e2e/tab-fix-validation.spec.ts",
+                            "column": 16,
+                            "line": 47
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:1420/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:1420/\", waiting until \"load\"\u001b[22m\n\n\n  45 |\n  46 |   test('should verify sidebar width constraints are still effective', async ({ page }) => {\n> 47 |     await page.goto('/');\n     |                ^\n  48 |     await page.waitForSelector('[data-testid=\"app-loaded\"]', { timeout: 30000 });\n  49 |\n  50 |     const sidebarCSS = await page.evaluate(() => {\n    at /Users/xb/table/postgirl/tests/e2e/tab-fix-validation.spec.ts:47:16"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-30T14:56:19.148Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/xb/table/postgirl/test-results/e2e-artifacts/tab-fix-validation-Tab-Con-ef823-traints-are-still-effective-Google-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/xb/table/postgirl/test-results/e2e-artifacts/tab-fix-validation-Tab-Con-ef823-traints-are-still-effective-Google-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/xb/table/postgirl/test-results/e2e-artifacts/tab-fix-validation-Tab-Con-ef823-traints-are-still-effective-Google-Chrome/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/xb/table/postgirl/tests/e2e/tab-fix-validation.spec.ts",
+                        "column": 16,
+                        "line": 47
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "42aef6cb1943666c48d6-c727c74dbe111300f2d2",
+              "file": "tab-fix-validation.spec.ts",
+              "line": 46,
               "column": 3
             }
           ]
@@ -260,11 +1956,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-06-29T04:11:59.009Z",
-    "duration": 67029.393,
-    "expected": 0,
+    "startTime": "2025-06-30T14:55:57.897Z",
+    "duration": 23888.553,
+    "expected": 16,
     "skipped": 0,
-    "unexpected": 1,
+    "unexpected": 12,
     "flaky": 0
   }
 }
